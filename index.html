@@ -1,10 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Rodízio de Limpeza Chip7</title>
+    <title>Rodízio de Limpeza</title>
     <style>
+        /* (mesmo estilo anterior, mantido) */
         * {
             margin: 0;
             padding: 0;
@@ -216,10 +218,15 @@
             cursor: pointer;
             font-weight: bold;
         }
-        input, select {
+        input, select, textarea {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            width: 100%;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
         }
         .modal {
             display: none;
@@ -241,7 +248,7 @@
             margin-bottom: 20px;
             color: #f57c00;
         }
-        .modal-content input, .modal-content select {
+        .modal-content input, .modal-content select, .modal-content textarea {
             width: 100%;
             margin: 10px 0;
         }
@@ -322,6 +329,11 @@
                 <input type="password" id="adminPassword" placeholder="Senha">
                 <button onclick="loginAdmin()">Entrar</button>
             </div>
+            <div class="login-card">
+                <h2>Ana Paula (Folgas)</h2>
+                <input type="password" id="anaPassword" placeholder="Senha">
+                <button onclick="loginAna()">Entrar</button>
+            </div>
         </div>
 
         <!-- Painel principal -->
@@ -339,6 +351,7 @@
                 <div class="tab active" onclick="showTab('loja')">🧹 Loja</div>
                 <div class="tab" onclick="showTab('banheiro')">🧼 Banheiro</div>
                 <div class="tab" onclick="showTab('almoco')">🍽️ Almoço</div>
+                <div class="tab" onclick="showTab('folgas')">📅 Folgas Terçais</div>
                 <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄 Feriados</div>
             </div>
 
@@ -385,6 +398,19 @@
                 </div>
             </div>
 
+            <!-- Painel Folgas Terçais -->
+            <div id="folgasPanel" class="panel">
+                <div id="folgasAdminControls" class="admin-controls" style="display: none;">
+                    <button class="btn" onclick="openAddFolgaModal()">➕ Adicionar folga</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="folgasTable">
+                        <thead><tr><th>Funcionário</th><th>Data</th><th>Observações</th><th id="folgasActionsHeader" style="display: none;">Ações</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Painel Feriados -->
             <div id="feriadosPanel" class="panel">
                 <div class="admin-controls">
@@ -397,7 +423,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Modal para adicionar/editar linha (genérico) -->
         <div id="modal" class="modal">
             <div class="modal-content">
                 <h3 id="modalTitle">Adicionar</h3>
@@ -409,43 +435,85 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal específico para folgas -->
+        <div id="folgaModal" class="modal">
+            <div class="modal-content">
+                <h3 id="folgaModalTitle">Adicionar folga</h3>
+                <select id="folgaFuncionario">
+                    <option value="Ana Paula">Ana Paula</option>
+                    <option value="Talia">Talia</option>
+                    <option value="Eddie">Eddie</option>
+                    <option value="Henrique">Henrique</option>
+                    <option value="Riquelme">Riquelme</option>
+                    <option value="Higor">Higor</option>
+                    <option value="Zeneilton">Zeneilton</option>
+                    <option value="Johnathan">Johnathan</option>
+                    <option value="David">David</option>
+                </select>
+                <input type="date" id="folgaData">
+                <textarea id="folgaObservacoes" placeholder="Observações"></textarea>
+                <div class="modal-buttons">
+                    <button class="btn" onclick="closeFolgaModal()">Cancelar</button>
+                    <button class="btn" onclick="saveFolgaModal()">Salvar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // ==================== DADOS INICIAIS ====================
-        const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan'];
+        const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan', 'David'];
         const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
         const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
-        // Ordem fixa das pessoas para o rodízio do almoço (importante para a rotação)
         const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana'];
 
-        // Feriados nacionais 2026 (principais)
+        // Feriados nacionais 2026
         const defaultHolidays = [
             '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
             '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
             '2026-11-15', '2026-12-25'
         ];
 
+        // Dados iniciais das folgas (sequência fornecida)
+        const initialFolgas = [
+            { funcionario: 'Eddie', data: '2026-01-06', observacoes: '' },
+            { funcionario: 'Johnathan', data: '2026-01-13', observacoes: '' },
+            { funcionario: 'Higor', data: '2026-01-20', observacoes: '' },
+            { funcionario: 'Ana Paula', data: '2026-01-27', observacoes: '' },
+            { funcionario: 'Talia', data: '2026-02-03', observacoes: '' },
+            { funcionario: 'Riquelme', data: '2026-02-10', observacoes: '' },
+            { funcionario: 'Henrique', data: '2026-02-17', observacoes: '' },
+            { funcionario: 'David', data: '2026-02-24', observacoes: '' }
+        ];
+
         // Estado da aplicação
         let currentUser = null;
         let isAdmin = false;
+        let isAna = false;
         let storeData = [];
         let bathroomData = [];
         let lunchData = [];
+        let folgasData = [];
         let holidays = [...defaultHolidays];
+
+        // Controles de modal
         let modalContext = { type: null, index: null };
+        let folgaModalContext = { index: null };
 
         // ==================== STORAGE ====================
         function loadFromStorage() {
             if (localStorage.getItem('storeData')) storeData = JSON.parse(localStorage.getItem('storeData'));
             if (localStorage.getItem('bathroomData')) bathroomData = JSON.parse(localStorage.getItem('bathroomData'));
             if (localStorage.getItem('lunchData')) lunchData = JSON.parse(localStorage.getItem('lunchData'));
+            if (localStorage.getItem('folgasData')) folgasData = JSON.parse(localStorage.getItem('folgasData'));
             if (localStorage.getItem('holidays')) holidays = JSON.parse(localStorage.getItem('holidays'));
         }
         function saveToStorage() {
             localStorage.setItem('storeData', JSON.stringify(storeData));
             localStorage.setItem('bathroomData', JSON.stringify(bathroomData));
             localStorage.setItem('lunchData', JSON.stringify(lunchData));
+            localStorage.setItem('folgasData', JSON.stringify(folgasData));
             localStorage.setItem('holidays', JSON.stringify(holidays));
         }
 
@@ -512,28 +580,18 @@
         }
 
         function generateLunchSchedule(startDate) {
-            // startDate deve ser um sábado (string YYYY-MM-DD)
             let currentDate = new Date(startDate + 'T12:00:00');
             let endDate = new Date(currentDate);
-            endDate.setMonth(endDate.getMonth() + 6); // gerar 6 meses
+            endDate.setMonth(endDate.getMonth() + 6);
 
-            // Determinar a configuração inicial baseada na data
-            // Precisamos saber qual era a ordem das funções na data de início
-            // Vamos usar a data 21/02/2026 como referência: [Compras, Louças, Descanso, Salada] para Talia, Eddie, Riquelme, Ana respectivamente
-            // Se a data for diferente, precisamos calcular quantas semanas se passaram desde 21/02/2026 para saber o deslocamento
             let referenceDate = new Date('2026-02-21T12:00:00');
             let diffTime = currentDate - referenceDate;
             let diffWeeks = Math.round(diffTime / (7 * 24 * 60 * 60 * 1000));
-            // Ajuste para garantir que diffWeeks seja inteiro
-            if (diffWeeks < 0) diffWeeks = 0; // não permitir data anterior à referência
+            if (diffWeeks < 0) diffWeeks = 0;
 
-            // Array de funções na ordem das pessoas para a semana de referência
             let baseFunctions = ['Compras', 'Louças', 'Descanso', 'Salada'];
-            // Aplicar rotação para trás (ou para frente) para encontrar a configuração na data de início
-            // A rotação é para a direita a cada semana. Para trás, rotacionamos para a esquerda.
             let currentFunctions = [...baseFunctions];
             for (let i = 0; i < diffWeeks; i++) {
-                // rotação para a direita (semana avançada)
                 currentFunctions = [
                     currentFunctions[3],
                     currentFunctions[0],
@@ -547,7 +605,6 @@
             while (tempDate <= endDate) {
                 let dateStr = tempDate.toISOString().split('T')['0'];
                 
-                // Mapear função -> pessoa
                 let compras = lunchPeople[currentFunctions.indexOf('Compras')];
                 let loucas = lunchPeople[currentFunctions.indexOf('Louças')];
                 let salada = lunchPeople[currentFunctions.indexOf('Salada')];
@@ -561,9 +618,7 @@
                     descanso: descanso
                 };
 
-                // Aplicar exceção: se for último dia do mês ou sábado véspera
                 if (isLastDayOfMonth(dateStr) || isLastSaturdayOfMonth(dateStr)) {
-                    // Encontrar a função da Ana
                     let anaFunction = null;
                     if (row.compras === 'Ana') anaFunction = 'compras';
                     else if (row.loucas === 'Ana') anaFunction = 'loucas';
@@ -571,25 +626,17 @@
                     else if (row.descanso === 'Ana') anaFunction = 'descanso';
 
                     if (anaFunction && anaFunction !== 'descanso') {
-                        // Trocar a função da Ana com o descanso
-                        // Quem está no descanso assume a função da Ana
                         let pessoaDescanso = row.descanso;
-                        // A função da Ana passa para o ex-descanso
                         row[anaFunction] = pessoaDescanso;
-                        // Ana vai para o descanso, mas descanso vira "Fechamento caixa"
                         row.descanso = 'Fechamento caixa';
                     } else if (anaFunction === 'descanso') {
-                        // Se a Ana já está no descanso, apenas muda para fechamento
                         row.descanso = 'Fechamento caixa';
                     }
                 }
 
                 schedule.push(row);
 
-                // Avançar para o próximo sábado
                 tempDate.setDate(tempDate.getDate() + 7);
-
-                // Rotacionar as funções para a direita (próxima semana)
                 currentFunctions = [
                     currentFunctions[3],
                     currentFunctions[0],
@@ -612,15 +659,13 @@
             let dia = String(hoje.getDate()).padStart(2, '0');
             let hojeStr = `${ano}-${mes}-${dia}`;
 
-            // Para loja e banheiro, queremos começar de hoje
-            generateStoreSchedule(hojeStr, 90); // 90 dias ~ 3 meses
-            generateBathroomSchedule(hojeStr, 26); // 26 semanas ~ 6 meses
+            generateStoreSchedule(hojeStr, 90);
+            generateBathroomSchedule(hojeStr, 26);
 
-            // Para o almoço, precisamos do próximo sábado a partir de hoje
             let hojeDate = new Date(hojeStr + 'T12:00:00');
             let diaSemana = hojeDate.getDay();
             let diffParaSabado = (6 - diaSemana + 7) % 7;
-            if (diffParaSabado === 0) diffParaSabado = 7; // se hoje é sábado, queremos o próximo sábado? Ou hoje mesmo? Vamos usar o próximo sábado para evitar começar no meio da semana.
+            if (diffParaSabado === 0) diffParaSabado = 7;
             let primeiroSabado = new Date(hojeDate);
             primeiroSabado.setDate(hojeDate.getDate() + diffParaSabado);
             let primeiroSabadoStr = primeiroSabado.toISOString().split('T')[0];
@@ -634,6 +679,7 @@
             renderLoja();
             renderBanheiro();
             renderAlmoco();
+            renderFolgas();
             renderHolidays();
         }
 
@@ -696,6 +742,25 @@
             document.getElementById('almocoActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
         }
 
+        function renderFolgas() {
+            let tbody = document.querySelector('#folgasTable tbody');
+            tbody.innerHTML = '';
+            folgasData.forEach((item, idx) => {
+                let tr = document.createElement('tr');
+                let dataFormatada = item.data ? formatDateWithWeekday(item.data).split(' - ')[0] : '';
+                tr.innerHTML = `<td>${item.funcionario}</td><td>${dataFormatada}</td><td>${item.observacoes || ''}</td>`;
+                if (isAdmin || isAna) {
+                    tr.innerHTML += `<td class="action-buttons">
+                        <button class="btn" onclick="marcarConcluida(${idx})" title="Marcar como concluída">✅</button>
+                        <button class="btn" onclick="editFolga(${idx})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteFolga(${idx})">🗑️</button>
+                    </td>`;
+                }
+                tbody.appendChild(tr);
+            });
+            document.getElementById('folgasActionsHeader').style.display = (isAdmin || isAna) ? 'table-cell' : 'none';
+        }
+
         function renderHolidays() {
             let container = document.getElementById('holidayListContainer');
             container.innerHTML = '';
@@ -711,8 +776,9 @@
         window.loginEmployee = function() {
             let name = document.getElementById('employeeSelect').value;
             if (!name) { alert('Selecione um nome'); return; }
-            currentUser = name;
+            currentUser = { nome: name, tipo: 'funcionario' };
             isAdmin = false;
+            isAna = false;
             enterApp();
         };
 
@@ -720,20 +786,39 @@
             let name = document.getElementById('adminName').value;
             let pwd = document.getElementById('adminPassword').value;
             if (name === 'David' && pwd === 'C7123') {
-                currentUser = 'David';
+                currentUser = { nome: 'David', tipo: 'admin' };
                 isAdmin = true;
+                isAna = false;
                 enterApp();
             } else {
                 alert('Credenciais inválidas');
             }
         };
 
+        window.loginAna = function() {
+            let pwd = document.getElementById('anaPassword').value;
+            if (pwd === '0411') {
+                currentUser = { nome: 'Ana Paula', tipo: 'ana' };
+                isAdmin = false;
+                isAna = true;
+                enterApp();
+            } else {
+                alert('Senha incorreta');
+            }
+        };
+
         function enterApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainPanel').style.display = 'block';
-            document.getElementById('userDisplay').innerText = `Olá, ${currentUser} `;
+            document.getElementById('userDisplay').innerText = `Olá, ${currentUser.nome} (${currentUser.tipo === 'admin' ? 'Admin' : currentUser.tipo === 'ana' ? 'Folgas' : 'Funcionário'})`;
             
-            document.querySelectorAll('.admin-controls').forEach(el => el.style.display = isAdmin ? 'flex' : 'none');
+            document.querySelectorAll('.admin-controls').forEach(el => {
+                if (el.id === 'folgasAdminControls') {
+                    el.style.display = (isAdmin || isAna) ? 'flex' : 'none';
+                } else {
+                    el.style.display = isAdmin ? 'flex' : 'none';
+                }
+            });
             document.getElementById('holidayTab').style.display = isAdmin ? 'block' : 'none';
             if (!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
             
@@ -741,25 +826,29 @@
             if (storeData.length === 0 || bathroomData.length === 0 || lunchData.length === 0) {
                 generateInitialData();
             }
+            if (folgasData.length === 0) {
+                folgasData = [...initialFolgas];
+                saveToStorage();
+            }
             renderTables();
         }
 
         window.logout = function() {
             currentUser = null;
             isAdmin = false;
+            isAna = false;
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainPanel').style.display = 'none';
             document.getElementById('employeeSelect').value = '';
             document.getElementById('adminName').value = 'David';
             document.getElementById('adminPassword').value = '';
+            document.getElementById('anaPassword').value = '';
         };
 
         function generateInitialData() {
-            // Gerar com base nas datas fixas originais
             generateStoreSchedule('2026-02-18', 90);
             generateBathroomSchedule('2026-02-18', 26);
             generateLunchSchedule('2026-02-21');
-            saveToStorage();
         }
 
         window.showTab = function(tab) {
@@ -769,7 +858,7 @@
             document.getElementById(tab + 'Panel').classList.add('active');
         };
 
-        // ==================== CRUD ====================
+        // ==================== CRUD para as escalas (admin) ====================
         window.openAddRowModal = function(type) {
             document.getElementById('modalTitle').innerText = 'Adicionar - ' + (type === 'loja' ? 'Loja' : type === 'banheiro' ? 'Banheiro' : 'Almoço');
             document.getElementById('modalDate').value = '';
@@ -857,6 +946,67 @@
             closeModal();
         };
 
+        // ==================== CRUD para folgas (Ana e admin) ====================
+        window.openAddFolgaModal = function() {
+            document.getElementById('folgaModalTitle').innerText = 'Adicionar folga';
+            document.getElementById('folgaFuncionario').value = 'Ana Paula';
+            document.getElementById('folgaData').value = '';
+            document.getElementById('folgaObservacoes').value = '';
+            folgaModalContext.index = null;
+            document.getElementById('folgaModal').style.display = 'flex';
+        };
+
+        window.editFolga = function(index) {
+            let item = folgasData[index];
+            document.getElementById('folgaModalTitle').innerText = 'Editar folga';
+            document.getElementById('folgaFuncionario').value = item.funcionario;
+            document.getElementById('folgaData').value = item.data;
+            document.getElementById('folgaObservacoes').value = item.observacoes || '';
+            folgaModalContext.index = index;
+            document.getElementById('folgaModal').style.display = 'flex';
+        };
+
+        window.deleteFolga = function(index) {
+            if (!confirm('Remover esta folga?')) return;
+            folgasData.splice(index, 1);
+            saveToStorage();
+            renderFolgas();
+        };
+
+        window.marcarConcluida = function(index) {
+            let item = folgasData[index];
+            let obs = item.observacoes || '';
+            if (!obs.startsWith('✅')) {
+                item.observacoes = '✅ ' + obs;
+            }
+            saveToStorage();
+            renderFolgas();
+        };
+
+        window.closeFolgaModal = function() {
+            document.getElementById('folgaModal').style.display = 'none';
+        };
+
+        window.saveFolgaModal = function() {
+            let funcionario = document.getElementById('folgaFuncionario').value;
+            let data = document.getElementById('folgaData').value;
+            let observacoes = document.getElementById('folgaObservacoes').value;
+            if (!funcionario || !data) {
+                alert('Funcionário e data são obrigatórios');
+                return;
+            }
+            let newFolga = { funcionario, data, observacoes };
+            if (folgaModalContext.index !== null) {
+                folgasData[folgaModalContext.index] = newFolga;
+            } else {
+                folgasData.push(newFolga);
+            }
+            folgasData.sort((a, b) => a.data.localeCompare(b.data));
+            saveToStorage();
+            renderFolgas();
+            closeFolgaModal();
+        };
+
         // ==================== FERIADOS ====================
         window.addHoliday = function() {
             let date = document.getElementById('newHolidayDate').value;
@@ -877,7 +1027,6 @@
         // ==================== REGENERAR ====================
         window.regenerateStore = function() {
             if (!confirm('Recriar escala da loja a partir da última data?')) return;
-            // Usar a data atual como referência
             let hoje = new Date();
             let ano = hoje.getFullYear();
             let mes = String(hoje.getMonth() + 1).padStart(2, '0');
@@ -903,7 +1052,6 @@
             let mes = String(hoje.getMonth() + 1).padStart(2, '0');
             let dia = String(hoje.getDate()).padStart(2, '0');
             let hojeStr = `${ano}-${mes}-${dia}`;
-            // Encontrar o próximo sábado
             let hojeDate = new Date(hojeStr + 'T12:00:00');
             let diaSemana = hojeDate.getDay();
             let diffParaSabado = (6 - diaSemana + 7) % 7;
@@ -915,11 +1063,14 @@
             renderTables();
         };
 
-        // Tornar a função global
         window.updateToCurrentDate = updateToCurrentDate;
 
         // Inicialização
         loadFromStorage();
+        if (folgasData.length === 0) {
+            folgasData = [...initialFolgas];
+            saveToStorage();
+        }
     </script>
 </body>
 </html>
