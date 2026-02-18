@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rodízio de Limpeza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        /* Cores: laranja, preto, branco */
+        .header {
+            background-color: #f57c00;
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .logo {
+            background-color: white;
+            color: #f57c00;
+            font-weight: bold;
+            font-size: 24px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid black;
+        }
+        .user-info {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: rgba(0,0,0,0.1);
+            padding: 8px 15px;
+            border-radius: 30px;
+        }
+        .btn {
+            background-color: white;
+            color: #f57c00;
+            border: 2px solid #f57c00;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background-color: #f57c00;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border-color: #bd2130;
+        }
+        .btn-danger:hover {
+            background-color: #bd2130;
+        }
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .login-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 300px;
+            border-top: 5px solid #f57c00;
+        }
+        .login-card h2 {
+            margin-bottom: 20px;
+            color: #f57c00;
+            border-bottom: 2px solid #f57c00;
+            padding-bottom: 10px;
+        }
+        .login-card select, .login-card input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 10px;
+            background-color: #f57c00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .login-card button:hover {
+            background-color: #e65100;
+        }
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-bottom: 3px solid #f57c00;
+            margin-top: 20px;
+        }
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #f57c00;
+            color: white;
+            border-color: #f57c00;
+        }
+        .panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background-color: #f57c00;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+        }
+        td, th {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .admin-controls {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-left: 5px solid #f57c00;
+        }
+        .holiday-list {
+            background-color: #fff3e0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .holiday-item {
+            display: inline-block;
+            background-color: #f57c00;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        .holiday-item button {
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #f57c00;
+        }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <!-- Tela de login -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-card">
+                <h2>Funcionário</h2>
+                <select id="employeeSelect">
+                    <option value="">Selecione</option>
+                    <option value="Ana Paula">Ana Paula</option>
+                    <option value="Talia">Talia</option>
+                    <option value="Eddie">Eddie</option>
+                    <option value="Henrique">Henrique</option>
+                    <option value="Riquelme">Riquelme</option>
+                    <option value="Higor">Higor</option>
+                    <option value="Zeneilton">Zeneilton</option>
+                    <option value="Johnathan">Johnathan</option>
+                </select>
+                <button onclick="loginEmployee()">Entrar</button>
+            </div>
+            <div class="login-card">
+                <h2>Administrador</h2>
+                <input type="text" id="adminName" value="David" placeholder="Nome">
+                <input type="password" id="adminPassword" placeholder="Senha">
+                <button onclick="loginAdmin()">Entrar</button>
+            </div>
+        </div>
+
+        <!-- Painel principal (oculto até login) -->
+        <div id="mainPanel" style="display: none;">
+            <div class="header">
+                <div class="logo" id="logoPlaceholder">🧹tabelas de Limpezas & Almoço🍽️</div>
+                <div class="user-info">
+                    <span id="userDisplay"></span>
+                    <button class="btn" onclick="logout()">Sair</button>
+                </div>
+            </div>
+
+            <!-- Abas -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('loja')">🧹Limpeza da Loja</div>
+                <div class="tab" onclick="showTab('banheiro')">🧼Limpeza do Banheiro</div>
+                <div class="tab" onclick="showTab('almoco')">🍽️Almoço de Sábado</div>
+                <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄Gerenciar Feriados</div>
+            </div>
+
+            <!-- Painel Loja -->
+            <div id="lojaPanel" class="panel active">
+                <div id="lojaAdminControls" class="admin-controls" style="display: none;">
+                    <button class="btn" onclick="openAddRowModal('loja')">➕ Adicionar linha</button>
+                    <button class="btn" onclick="regenerateStore()">🔄 Regenerar escala</button>
+                </div>
+                <table id="lojaTable">
+                    <thead><tr><th>Data e Dia</th><th>Funcionário</th><th id="lojaActionsHeader" style="display: none;">Ações</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Painel Banheiro -->
+            <div id="banheiroPanel" class="panel">
+                <div id="banheiroAdminControls" class="admin-controls" style="display: none;">
+                    <button class="btn" onclick="openAddRowModal('banheiro')">➕ Adicionar linha</button>
+                    <button class="btn" onclick="regenerateBathroom()">🔄 Regenerar escala</button>
+                </div>
+                <table id="banheiroTable">
+                    <thead><tr><th>Data e Dia</th><th>Funcionário</th><th id="banheiroActionsHeader" style="display: none;">Ações</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Painel Almoço -->
+            <div id="almocoPanel" class="panel">
+                <div id="almocoAdminControls" class="admin-controls" style="display: none;">
+                    <button class="btn" onclick="openAddRowModal('almoco')">➕ Adicionar linha</button>
+                    <button class="btn" onclick="regenerateLunch()">🔄 Regenerar escala</button>
+                </div>
+                <table id="almocoTable">
+                    <thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th>Descanso</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Painel Feriados (só admin) -->
+            <div id="feriadosPanel" class="panel">
+                <div class="admin-controls">
+                    <h3 style="margin:0; color:#f57c00;">Feriados Nacionais</h3>
+                    <input type="date" id="newHolidayDate">
+                    <button class="btn" onclick="addHoliday()">Adicionar</button>
+                </div>
+                <div id="holidayListContainer" class="holiday-list"></div>
+                <p>Os feriados são ignorados na escala da loja (dias sem limpeza).</p>
+            </div>
+        </div>
+
+        <!-- Modal para adicionar/editar linha -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h3 id="modalTitle">Adicionar</h3>
+                <input type="date" id="modalDate">
+                <div id="modalFields"></div>
+                <div class="modal-buttons">
+                    <button class="btn" onclick="closeModal()">Cancelar</button>
+                    <button class="btn" onclick="saveModal()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DADOS INICIAIS ====================
+        const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan'];
+        const storeRotation = ['Eddie', 'Talia', 'Ana Paula']; // sequência para loja (sem sábado)
+        const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme']; // sequência para banheiro
+        const lunchPattern = [
+            { compras: 'Talia', loucas: 'Ana', salada: 'Riquelme', descanso: 'Eddie' },
+            { compras: 'Ana', loucas: 'Riquelme', salada: 'Eddie', descanso: 'Talia' },
+            { compras: 'Talia', loucas: 'Eddie', salada: 'Ana', descanso: 'Riquelme' },
+            { compras: 'Eddie', loucas: 'Riquelme', salada: 'Talia', descanso: 'Ana' }
+        ]; // semana 1,2,3,4 (repete)
+
+        // Feriados nacionais 2026 (principais)
+        const defaultHolidays = [
+            '2026-01-01', // Confraternização Universal
+            '2026-02-16', // Carnaval (segunda)
+            '2026-02-17', // Carnaval (terça)
+            '2026-04-03', // Sexta-feira Santa
+            '2026-04-21', // Tiradentes
+            '2026-05-01', // Dia do Trabalho
+            '2026-06-04', // Corpus Christi
+            '2026-09-07', // Independência
+            '2026-10-12', // Nossa Srª Aparecida
+            '2026-11-02', // Finados
+            '2026-11-15', // Proclamação da República
+            '2026-12-25'  // Natal
+        ];
+
+        // Estado da aplicação
+        let currentUser = null;
+        let isAdmin = false;
+        let storeData = [];
+        let bathroomData = [];
+        let lunchData = [];
+        let holidays = [...defaultHolidays];
+
+        // Controle do modal
+        let modalCallback = null;
+        let modalContext = { type: null, index: null };
+
+        // ==================== INICIALIZAÇÃO ====================
+        function loadFromStorage() {
+            if (localStorage.getItem('storeData')) storeData = JSON.parse(localStorage.getItem('storeData'));
+            if (localStorage.getItem('bathroomData')) bathroomData = JSON.parse(localStorage.getItem('bathroomData'));
+            if (localStorage.getItem('lunchData')) lunchData = JSON.parse(localStorage.getItem('lunchData'));
+            if (localStorage.getItem('holidays')) holidays = JSON.parse(localStorage.getItem('holidays'));
+        }
+        function saveToStorage() {
+            localStorage.setItem('storeData', JSON.stringify(storeData));
+            localStorage.setItem('bathroomData', JSON.stringify(bathroomData));
+            localStorage.setItem('lunchData', JSON.stringify(lunchData));
+            localStorage.setItem('holidays', JSON.stringify(holidays));
+        }
+
+        // Geração inicial (se vazio)
+        function generateInitialData() {
+            if (storeData.length === 0) generateStoreSchedule('2026-02-18', 90);
+            if (bathroomData.length === 0) generateBathroomSchedule('2026-02-18', 26);
+            if (lunchData.length === 0) generateLunchSchedule();
+            saveToStorage();
+        }
+
+        // ==================== FUNÇÕES DE GERAÇÃO ====================
+        function isSunday(dateStr) {
+            return new Date(dateStr + 'T12:00:00').getDay() === 0;
+        }
+        function isHoliday(dateStr) {
+            return holidays.includes(dateStr);
+        }
+
+        function generateStoreSchedule(startDate, daysAhead) {
+            let current = new Date(startDate + 'T12:00:00');
+            let end = new Date(current);
+            end.setDate(end.getDate() + daysAhead);
+            let rotationIndex = storeRotation.indexOf('Ana Paula'); // começa com Ana Paula
+            let schedule = [];
+            
+            while (current <= end) {
+                let dateStr = current.toISOString().split('T')[0];
+                if (!isSunday(dateStr) && !isHoliday(dateStr)) {
+                    if (current.getDay() === 6) { // sábado
+                        schedule.push({ date: dateStr, person: 'Riquelme' });
+                    } else {
+                        schedule.push({ date: dateStr, person: storeRotation[rotationIndex] });
+                        rotationIndex = (rotationIndex + 1) % storeRotation.length;
+                    }
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            storeData = schedule;
+            saveToStorage();
+        }
+
+        function generateBathroomSchedule(startDate, weeksAhead) {
+            let current = new Date(startDate + 'T12:00:00');
+            let end = new Date(current);
+            end.setDate(end.getDate() + weeksAhead * 7);
+            let rotationIndex = bathroomRotation.indexOf('Riquelme'); // começa com Riquelme
+            let schedule = [];
+            
+            while (current <= end) {
+                if (current.getDay() === 3) { // quarta
+                    let dateStr = current.toISOString().split('T')[0];
+                    schedule.push({ date: dateStr, person: bathroomRotation[rotationIndex] });
+                    rotationIndex = (rotationIndex + 1) % bathroomRotation.length;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            bathroomData = schedule;
+            saveToStorage();
+        }
+
+        function generateLunchSchedule() {
+            // Dados fornecidos até 28/02
+            let baseDates = [
+                '2026-02-07', '2026-02-14', '2026-02-21', '2026-02-28'
+            ];
+            let schedule = [];
+            for (let i = 0; i < baseDates.length; i++) {
+                schedule.push({
+                    date: baseDates[i],
+                    ...lunchPattern[i]
+                });
+            }
+            // Gerar próximos 6 meses de sábados
+            let lastDate = new Date('2026-02-28T12:00:00');
+            let end = new Date(lastDate);
+            end.setMonth(end.getMonth() + 6);
+            let patternIndex = 0; // começa do padrão semana 1 (índice 0) para a próxima semana
+            let nextSaturday = new Date(lastDate);
+            nextSaturday.setDate(nextSaturday.getDate() + 7); // 07/03
+            while (nextSaturday <= end) {
+                let dateStr = nextSaturday.toISOString().split('T')[0];
+                let pattern = lunchPattern[patternIndex % 4];
+                schedule.push({ date: dateStr, ...pattern });
+                patternIndex++;
+                nextSaturday.setDate(nextSaturday.getDate() + 7);
+            }
+            lunchData = schedule;
+            saveToStorage();
+        }
+
+        // ==================== RENDERIZAÇÃO ====================
+        function renderTables() {
+            renderLoja();
+            renderBanheiro();
+            renderAlmoco();
+            renderHolidays();
+        }
+
+        function formatDateWithWeekday(dateStr) {
+            let [y, m, d] = dateStr.split('-');
+            let date = new Date(dateStr + 'T12:00:00');
+            let weekdays = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+            let weekday = weekdays[date.getDay()];
+            return `${d}/${m}/${y} - ${weekday}`;
+        }
+
+        function renderLoja() {
+            let tbody = document.querySelector('#lojaTable tbody');
+            tbody.innerHTML = '';
+            storeData.forEach((item, idx) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.person}</td>`;
+                if (isAdmin) {
+                    tr.innerHTML += `<td class="action-buttons">
+                        <button class="btn" onclick="editRow('loja', ${idx})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteRow('loja', ${idx})">🗑️</button>
+                    </td>`;
+                }
+                tbody.appendChild(tr);
+            });
+            document.getElementById('lojaActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
+        }
+
+        function renderBanheiro() {
+            let tbody = document.querySelector('#banheiroTable tbody');
+            tbody.innerHTML = '';
+            bathroomData.forEach((item, idx) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.person}</td>`;
+                if (isAdmin) {
+                    tr.innerHTML += `<td class="action-buttons">
+                        <button class="btn" onclick="editRow('banheiro', ${idx})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteRow('banheiro', ${idx})">🗑️</button>
+                    </td>`;
+                }
+                tbody.appendChild(tr);
+            });
+            document.getElementById('banheiroActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
+        }
+
+        function renderAlmoco() {
+            let tbody = document.querySelector('#almocoTable tbody');
+            tbody.innerHTML = '';
+            lunchData.forEach((item, idx) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.compras}</td><td>${item.loucas}</td><td>${item.salada}</td><td>${item.descanso}</td>`;
+                if (isAdmin) {
+                    tr.innerHTML += `<td class="action-buttons">
+                        <button class="btn" onclick="editRow('almoco', ${idx})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteRow('almoco', ${idx})">🗑️</button>
+                    </td>`;
+                }
+                tbody.appendChild(tr);
+            });
+            document.getElementById('almocoActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
+        }
+
+        function renderHolidays() {
+            let container = document.getElementById('holidayListContainer');
+            container.innerHTML = '';
+            holidays.sort().forEach(date => {
+                let span = document.createElement('span');
+                span.className = 'holiday-item';
+                span.innerHTML = `${formatDateWithWeekday(date)} <button onclick="removeHoliday('${date}')">✕</button>`;
+                container.appendChild(span);
+            });
+        }
+
+        function formatDate(dateStr) {
+            let [y, m, d] = dateStr.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        // ==================== LOGIN / LOGOUT ====================
+        window.loginEmployee = function() {
+            let name = document.getElementById('employeeSelect').value;
+            if (!name) { alert('Selecione um nome'); return; }
+            currentUser = name;
+            isAdmin = false;
+            enterApp();
+        };
+
+        window.loginAdmin = function() {
+            let name = document.getElementById('adminName').value;
+            let pwd = document.getElementById('adminPassword').value;
+            if (name === 'David' && pwd === 'C7123') {
+                currentUser = 'David';
+                isAdmin = true;
+                enterApp();
+            } else {
+                alert('Credenciais inválidas');
+            }
+        };
+
+        function enterApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainPanel').style.display = 'block';
+            document.getElementById('userDisplay').innerText = `Olá, ${currentUser} `;
+            
+            // Mostrar controles de admin e aba feriados
+            document.querySelectorAll('.admin-controls').forEach(el => el.style.display = isAdmin ? 'flex' : 'none');
+            document.getElementById('holidayTab').style.display = isAdmin ? 'block' : 'none';
+            if (!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
+            
+            loadFromStorage();
+            if (storeData.length === 0 || bathroomData.length === 0 || lunchData.length === 0) {
+                generateInitialData();
+            }
+            renderTables();
+        }
+
+        window.logout = function() {
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainPanel').style.display = 'none';
+            document.getElementById('employeeSelect').value = '';
+            document.getElementById('adminName').value = 'David';
+            document.getElementById('adminPassword').value = '';
+        };
+
+        // ==================== ABAS ====================
+        window.showTab = function(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
+            document.getElementById(tab + 'Panel').classList.add('active');
+        };
+
+        // ==================== CRUD (Admin) ====================
+        window.openAddRowModal = function(type) {
+            document.getElementById('modalTitle').innerText = 'Adicionar - ' + (type === 'loja' ? 'Loja' : type === 'banheiro' ? 'Banheiro' : 'Almoço');
+            document.getElementById('modalDate').value = '';
+            let fields = document.getElementById('modalFields');
+            if (type === 'almoco') {
+                fields.innerHTML = `
+                    <select id="modalCompras" placeholder="Compras">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalLoucas" placeholder="Louças">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalSalada" placeholder="Salada">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalDescanso" placeholder="Descanso">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                `;
+            } else {
+                fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>`;
+            }
+            modalContext = { type, index: null };
+            document.getElementById('modal').style.display = 'flex';
+        };
+
+        window.editRow = function(type, index) {
+            let item;
+            if (type === 'loja') item = storeData[index];
+            else if (type === 'banheiro') item = bathroomData[index];
+            else item = lunchData[index];
+            
+            document.getElementById('modalTitle').innerText = 'Editar - ' + (type === 'loja' ? 'Loja' : type === 'banheiro' ? 'Banheiro' : 'Almoço');
+            document.getElementById('modalDate').value = item.date;
+            let fields = document.getElementById('modalFields');
+            if (type === 'almoco') {
+                fields.innerHTML = `
+                    <select id="modalCompras">${funcionarios.map(f => `<option ${f === item.compras ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                    <select id="modalLoucas">${funcionarios.map(f => `<option ${f === item.loucas ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                    <select id="modalSalada">${funcionarios.map(f => `<option ${f === item.salada ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                    <select id="modalDescanso">${funcionarios.map(f => `<option ${f === item.descanso ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                `;
+            } else {
+                fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option ${f === item.person ? 'selected' : ''}>${f}</option>`).join('')}</select>`;
+            }
+            modalContext = { type, index };
+            document.getElementById('modal').style.display = 'flex';
+        };
+
+        window.deleteRow = function(type, index) {
+            if (!confirm('Remover esta linha?')) return;
+            if (type === 'loja') storeData.splice(index, 1);
+            else if (type === 'banheiro') bathroomData.splice(index, 1);
+            else lunchData.splice(index, 1);
+            saveToStorage();
+            renderTables();
+        };
+
+        window.closeModal = function() {
+            document.getElementById('modal').style.display = 'none';
+        };
+
+        window.saveModal = function() {
+            let date = document.getElementById('modalDate').value;
+            if (!date) { alert('Data obrigatória'); return; }
+            let { type, index } = modalContext;
+            
+            if (type === 'almoco') {
+                let compras = document.getElementById('modalCompras').value;
+                let loucas = document.getElementById('modalLoucas').value;
+                let salada = document.getElementById('modalSalada').value;
+                let descanso = document.getElementById('modalDescanso').value;
+                let newRow = { date, compras, loucas, salada, descanso };
+                if (index !== null) lunchData[index] = newRow;
+                else lunchData.push(newRow);
+            } else {
+                let person = document.getElementById('modalPerson').value;
+                let newRow = { date, person };
+                if (index !== null) {
+                    if (type === 'loja') storeData[index] = newRow;
+                    else bathroomData[index] = newRow;
+                } else {
+                    if (type === 'loja') storeData.push(newRow);
+                    else bathroomData.push(newRow);
+                }
+            }
+            // Ordenar por data
+            if (type === 'loja') storeData.sort((a,b) => a.date.localeCompare(b.date));
+            if (type === 'banheiro') bathroomData.sort((a,b) => a.date.localeCompare(b.date));
+            if (type === 'almoco') lunchData.sort((a,b) => a.date.localeCompare(b.date));
+            
+            saveToStorage();
+            renderTables();
+            closeModal();
+        };
+
+        // ==================== FERIADOS ====================
+        window.addHoliday = function() {
+            let date = document.getElementById('newHolidayDate').value;
+            if (!date) return;
+            if (!holidays.includes(date)) holidays.push(date);
+            holidays.sort();
+            saveToStorage();
+            renderHolidays();
+            document.getElementById('newHolidayDate').value = '';
+        };
+
+        window.removeHoliday = function(date) {
+            holidays = holidays.filter(d => d !== date);
+            saveToStorage();
+            renderHolidays();
+        };
+
+        // ==================== REGENERAR ====================
+        window.regenerateStore = function() {
+            if (!confirm('Isso irá recriar a escala da loja a partir de hoje (18/02/2026) e apagar edições manuais. Continuar?')) return;
+            generateStoreSchedule('2026-02-18', 90);
+            renderTables();
+        };
+        window.regenerateBathroom = function() {
+            if (!confirm('Recriar escala do banheiro?')) return;
+            generateBathroomSchedule('2026-02-18', 26);
+            renderTables();
+        };
+        window.regenerateLunch = function() {
+            if (!confirm('Recriar escala do almoço?')) return;
+            generateLunchSchedule();
+            renderTables();
+        };
+
+        // Inicialização
+        loadFromStorage();
+    </script>
+</body>
+</html>
