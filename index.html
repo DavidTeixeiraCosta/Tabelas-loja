@@ -2,10 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Rodízio de Limpeza</title>
     <style>
-        /* (mesmo estilo anterior, mantido por brevidade) */
         * {
             margin: 0;
             padding: 0;
@@ -30,6 +29,7 @@
             align-items: center;
             gap: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
         }
         .logo {
             background-color: white;
@@ -48,6 +48,7 @@
             background-color: rgba(0,0,0,0.1);
             padding: 8px 15px;
             border-radius: 30px;
+            flex-wrap: wrap;
         }
         .btn {
             background-color: white;
@@ -58,6 +59,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
+            font-size: 14px;
         }
         .btn:hover {
             background-color: #f57c00;
@@ -70,6 +72,14 @@
         }
         .btn-danger:hover {
             background-color: #bd2130;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+            border-color: #218838;
+        }
+        .btn-success:hover {
+            background-color: #218838;
         }
         .login-screen {
             display: flex;
@@ -118,6 +128,7 @@
             background-color: white;
             border-bottom: 3px solid #f57c00;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .tab {
             padding: 12px 25px;
@@ -128,6 +139,7 @@
             border-bottom: none;
             margin-right: 5px;
             border-radius: 5px 5px 0 0;
+            font-size: 14px;
         }
         .tab.active {
             background-color: #f57c00;
@@ -140,6 +152,7 @@
             border-radius: 0 0 8px 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: none;
+            overflow-x: auto;
         }
         .panel.active {
             display: block;
@@ -148,6 +161,7 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            min-width: 600px;
         }
         th {
             background-color: #f57c00;
@@ -177,6 +191,7 @@
             gap: 10px;
             align-items: center;
             border-left: 5px solid #f57c00;
+            flex-wrap: wrap;
         }
         .holiday-list {
             background-color: #fff3e0;
@@ -241,6 +256,45 @@
             margin-top: 30px;
             color: #777;
         }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .logo {
+                font-size: 18px;
+                padding: 8px;
+            }
+            .user-info {
+                margin-left: 0;
+                justify-content: center;
+            }
+            .tab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .admin-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .admin-controls button {
+                width: 100%;
+            }
+            th, td {
+                padding: 6px;
+                font-size: 12px;
+            }
+            .action-buttons button {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -273,7 +327,7 @@
         <!-- Painel principal -->
         <div id="mainPanel" style="display: none;">
             <div class="header">
-                <div class="logo" id="logoPlaceholder">🧹tabelas de Limpezas & Almoço🍽️</div>
+                <div class="logo" id="logoPlaceholder">🧹 Limpeza & Almoço 🍽️</div>
                 <div class="user-info">
                     <span id="userDisplay"></span>
                     <button class="btn" onclick="logout()">Sair</button>
@@ -282,46 +336,53 @@
 
             <!-- Abas -->
             <div class="tabs">
-                <div class="tab active" onclick="showTab('loja')">🧹Limpeza da Loja</div>
-                <div class="tab" onclick="showTab('banheiro')">🧼Limpeza do Banheiro</div>
-                <div class="tab" onclick="showTab('almoco')">🍽️Almoço de Sábado</div>
-                <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄Gerenciar Feriados</div>
+                <div class="tab active" onclick="showTab('loja')">🧹 Loja</div>
+                <div class="tab" onclick="showTab('banheiro')">🧼 Banheiro</div>
+                <div class="tab" onclick="showTab('almoco')">🍽️ Almoço</div>
+                <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄 Feriados</div>
             </div>
 
             <!-- Painel Loja -->
             <div id="lojaPanel" class="panel active">
                 <div id="lojaAdminControls" class="admin-controls" style="display: none;">
-                    <button class="btn" onclick="openAddRowModal('loja')">➕ Adicionar linha</button>
-                    <button class="btn" onclick="regenerateStore()">🔄 Regenerar escala</button>
+                    <button class="btn" onclick="openAddRowModal('loja')">➕ Adicionar</button>
+                    <button class="btn" onclick="regenerateStore()">🔄 Regenerar loja</button>
                 </div>
-                <table id="lojaTable">
-                    <thead><tr><th>Data e Dia</th><th>Funcionário</th><th id="lojaActionsHeader" style="display: none;">Ações</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table id="lojaTable">
+                        <thead><tr><th>Data e Dia</th><th>Funcionário</th><th id="lojaActionsHeader" style="display: none;">Ações</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Painel Banheiro -->
             <div id="banheiroPanel" class="panel">
                 <div id="banheiroAdminControls" class="admin-controls" style="display: none;">
-                    <button class="btn" onclick="openAddRowModal('banheiro')">➕ Adicionar linha</button>
-                    <button class="btn" onclick="regenerateBathroom()">🔄 Regenerar escala</button>
+                    <button class="btn" onclick="openAddRowModal('banheiro')">➕ Adicionar</button>
+                    <button class="btn" onclick="regenerateBathroom()">🔄 Regenerar banheiro</button>
                 </div>
-                <table id="banheiroTable">
-                    <thead><tr><th>Data e Dia</th><th>Funcionário</th><th id="banheiroActionsHeader" style="display: none;">Ações</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table id="banheiroTable">
+                        <thead><tr><th>Data e Dia</th><th>Funcionário</th><th id="banheiroActionsHeader" style="display: none;">Ações</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Painel Almoço -->
             <div id="almocoPanel" class="panel">
                 <div id="almocoAdminControls" class="admin-controls" style="display: none;">
-                    <button class="btn" onclick="openAddRowModal('almoco')">➕ Adicionar linha</button>
-                    <button class="btn" onclick="regenerateLunch()">🔄 Regenerar escala</button>
+                    <button class="btn" onclick="openAddRowModal('almoco')">➕ Adicionar</button>
+                    <button class="btn" onclick="regenerateLunch()">🔄 Regenerar almoço</button>
+                    <button class="btn btn-success" onclick="updateToCurrentDate()">📅 Atualizar para hoje</button>
                 </div>
-                <table id="almocoTable">
-                    <thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th>Descanso</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table id="almocoTable">
+                        <thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th>Descanso</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Painel Feriados -->
@@ -355,16 +416,17 @@
         const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan'];
         const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
         const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
-        const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana']; // ordem fixa das pessoas para o rodízio
+        // Ordem fixa das pessoas para o rodízio do almoço (importante para a rotação)
+        const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana'];
 
-        // Feriados nacionais 2026
+        // Feriados nacionais 2026 (principais)
         const defaultHolidays = [
             '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
             '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
             '2026-11-15', '2026-12-25'
         ];
 
-        // Estado
+        // Estado da aplicação
         let currentUser = null;
         let isAdmin = false;
         let storeData = [];
@@ -401,7 +463,7 @@
         }
         function isLastSaturdayOfMonth(dateStr) {
             let d = new Date(dateStr + 'T12:00:00');
-            if (d.getDay() !== 6) return false; // só sábado
+            if (d.getDay() !== 6) return false;
             let nextDay = new Date(d);
             nextDay.setDate(d.getDate() + 1);
             let lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
@@ -449,20 +511,41 @@
             saveToStorage();
         }
 
-        function generateLunchSchedule() {
-            // Configuração inicial: 21/02/2026 (sábado)
-            // Ordem das pessoas: [Talia, Eddie, Riquelme, Ana]
-            // Funções correspondentes: [Compras, Louças, Descanso, Salada]
-            let currentDate = new Date('2026-02-21T12:00:00');
+        function generateLunchSchedule(startDate) {
+            // startDate deve ser um sábado (string YYYY-MM-DD)
+            let currentDate = new Date(startDate + 'T12:00:00');
             let endDate = new Date(currentDate);
             endDate.setMonth(endDate.getMonth() + 6); // gerar 6 meses
 
-            // Array de funções na ordem das pessoas para a semana inicial
-            let currentFunctions = ['Compras', 'Louças', 'Descanso', 'Salada'];
-            let schedule = [];
+            // Determinar a configuração inicial baseada na data
+            // Precisamos saber qual era a ordem das funções na data de início
+            // Vamos usar a data 21/02/2026 como referência: [Compras, Louças, Descanso, Salada] para Talia, Eddie, Riquelme, Ana respectivamente
+            // Se a data for diferente, precisamos calcular quantas semanas se passaram desde 21/02/2026 para saber o deslocamento
+            let referenceDate = new Date('2026-02-21T12:00:00');
+            let diffTime = currentDate - referenceDate;
+            let diffWeeks = Math.round(diffTime / (7 * 24 * 60 * 60 * 1000));
+            // Ajuste para garantir que diffWeeks seja inteiro
+            if (diffWeeks < 0) diffWeeks = 0; // não permitir data anterior à referência
 
-            while (currentDate <= endDate) {
-                let dateStr = currentDate.toISOString().split('T')[0];
+            // Array de funções na ordem das pessoas para a semana de referência
+            let baseFunctions = ['Compras', 'Louças', 'Descanso', 'Salada'];
+            // Aplicar rotação para trás (ou para frente) para encontrar a configuração na data de início
+            // A rotação é para a direita a cada semana. Para trás, rotacionamos para a esquerda.
+            let currentFunctions = [...baseFunctions];
+            for (let i = 0; i < diffWeeks; i++) {
+                // rotação para a direita (semana avançada)
+                currentFunctions = [
+                    currentFunctions[3],
+                    currentFunctions[0],
+                    currentFunctions[1],
+                    currentFunctions[2]
+                ];
+            }
+
+            let schedule = [];
+            let tempDate = new Date(currentDate);
+            while (tempDate <= endDate) {
+                let dateStr = tempDate.toISOString().split('T')['0'];
                 
                 // Mapear função -> pessoa
                 let compras = lunchPeople[currentFunctions.indexOf('Compras')];
@@ -478,22 +561,35 @@
                     descanso: descanso
                 };
 
-                // Aplicar exceção: se for último dia do mês ou sábado véspera do último dia (fechamento no sábado)
+                // Aplicar exceção: se for último dia do mês ou sábado véspera
                 if (isLastDayOfMonth(dateStr) || isLastSaturdayOfMonth(dateStr)) {
-                    // Descobrir em qual função Ana está
-                    if (row.compras === 'Ana') row.compras = 'Fechamento caixa';
-                    else if (row.loucas === 'Ana') row.loucas = 'Fechamento caixa';
-                    else if (row.salada === 'Ana') row.salada = 'Fechamento caixa';
-                    else if (row.descanso === 'Ana') row.descanso = 'Fechamento caixa';
+                    // Encontrar a função da Ana
+                    let anaFunction = null;
+                    if (row.compras === 'Ana') anaFunction = 'compras';
+                    else if (row.loucas === 'Ana') anaFunction = 'loucas';
+                    else if (row.salada === 'Ana') anaFunction = 'salada';
+                    else if (row.descanso === 'Ana') anaFunction = 'descanso';
+
+                    if (anaFunction && anaFunction !== 'descanso') {
+                        // Trocar a função da Ana com o descanso
+                        // Quem está no descanso assume a função da Ana
+                        let pessoaDescanso = row.descanso;
+                        // A função da Ana passa para o ex-descanso
+                        row[anaFunction] = pessoaDescanso;
+                        // Ana vai para o descanso, mas descanso vira "Fechamento caixa"
+                        row.descanso = 'Fechamento caixa';
+                    } else if (anaFunction === 'descanso') {
+                        // Se a Ana já está no descanso, apenas muda para fechamento
+                        row.descanso = 'Fechamento caixa';
+                    }
                 }
 
                 schedule.push(row);
 
                 // Avançar para o próximo sábado
-                currentDate.setDate(currentDate.getDate() + 7);
+                tempDate.setDate(tempDate.getDate() + 7);
 
                 // Rotacionar as funções para a direita (próxima semana)
-                // [f0, f1, f2, f3] -> [f3, f0, f1, f2]
                 currentFunctions = [
                     currentFunctions[3],
                     currentFunctions[0],
@@ -504,6 +600,33 @@
 
             lunchData = schedule;
             saveToStorage();
+        }
+
+        // ==================== ATUALIZAR PARA DATA ATUAL ====================
+        function updateToCurrentDate() {
+            if (!confirm('Isso irá recriar todas as escalas a partir da data de hoje, mantendo os padrões. As edições manuais serão perdidas. Continuar?')) return;
+            
+            let hoje = new Date();
+            let ano = hoje.getFullYear();
+            let mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            let dia = String(hoje.getDate()).padStart(2, '0');
+            let hojeStr = `${ano}-${mes}-${dia}`;
+
+            // Para loja e banheiro, queremos começar de hoje
+            generateStoreSchedule(hojeStr, 90); // 90 dias ~ 3 meses
+            generateBathroomSchedule(hojeStr, 26); // 26 semanas ~ 6 meses
+
+            // Para o almoço, precisamos do próximo sábado a partir de hoje
+            let hojeDate = new Date(hojeStr + 'T12:00:00');
+            let diaSemana = hojeDate.getDay();
+            let diffParaSabado = (6 - diaSemana + 7) % 7;
+            if (diffParaSabado === 0) diffParaSabado = 7; // se hoje é sábado, queremos o próximo sábado? Ou hoje mesmo? Vamos usar o próximo sábado para evitar começar no meio da semana.
+            let primeiroSabado = new Date(hojeDate);
+            primeiroSabado.setDate(hojeDate.getDate() + diffParaSabado);
+            let primeiroSabadoStr = primeiroSabado.toISOString().split('T')[0];
+            generateLunchSchedule(primeiroSabadoStr);
+
+            renderTables();
         }
 
         // ==================== RENDERIZAÇÃO ====================
@@ -632,9 +755,10 @@
         };
 
         function generateInitialData() {
-            if (storeData.length === 0) generateStoreSchedule('2026-02-18', 90);
-            if (bathroomData.length === 0) generateBathroomSchedule('2026-02-18', 26);
-            if (lunchData.length === 0) generateLunchSchedule();
+            // Gerar com base nas datas fixas originais
+            generateStoreSchedule('2026-02-18', 90);
+            generateBathroomSchedule('2026-02-18', 26);
+            generateLunchSchedule('2026-02-21');
             saveToStorage();
         }
 
@@ -752,20 +876,47 @@
 
         // ==================== REGENERAR ====================
         window.regenerateStore = function() {
-            if (!confirm('Recriar escala da loja?')) return;
-            generateStoreSchedule('2026-02-18', 90);
+            if (!confirm('Recriar escala da loja a partir da última data?')) return;
+            // Usar a data atual como referência
+            let hoje = new Date();
+            let ano = hoje.getFullYear();
+            let mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            let dia = String(hoje.getDate()).padStart(2, '0');
+            let hojeStr = `${ano}-${mes}-${dia}`;
+            generateStoreSchedule(hojeStr, 90);
             renderTables();
         };
         window.regenerateBathroom = function() {
             if (!confirm('Recriar escala do banheiro?')) return;
-            generateBathroomSchedule('2026-02-18', 26);
+            let hoje = new Date();
+            let ano = hoje.getFullYear();
+            let mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            let dia = String(hoje.getDate()).padStart(2, '0');
+            let hojeStr = `${ano}-${mes}-${dia}`;
+            generateBathroomSchedule(hojeStr, 26);
             renderTables();
         };
         window.regenerateLunch = function() {
-            if (!confirm('Recriar escala do almoço? Isso aplicará o rodízio correto a partir de 21/02/2026.')) return;
-            generateLunchSchedule();
+            if (!confirm('Recriar escala do almoço a partir da data atual?')) return;
+            let hoje = new Date();
+            let ano = hoje.getFullYear();
+            let mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            let dia = String(hoje.getDate()).padStart(2, '0');
+            let hojeStr = `${ano}-${mes}-${dia}`;
+            // Encontrar o próximo sábado
+            let hojeDate = new Date(hojeStr + 'T12:00:00');
+            let diaSemana = hojeDate.getDay();
+            let diffParaSabado = (6 - diaSemana + 7) % 7;
+            if (diffParaSabado === 0) diffParaSabado = 7;
+            let primeiroSabado = new Date(hojeDate);
+            primeiroSabado.setDate(hojeDate.getDate() + diffParaSabado);
+            let primeiroSabadoStr = primeiroSabado.toISOString().split('T')[0];
+            generateLunchSchedule(primeiroSabadoStr);
             renderTables();
         };
+
+        // Tornar a função global
+        window.updateToCurrentDate = updateToCurrentDate;
 
         // Inicialização
         loadFromStorage();
