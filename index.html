@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rodízio de Limpeza</title>
     <style>
+        /* (mesmo estilo anterior, mantido por brevidade) */
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +21,6 @@
             margin: 0 auto;
             padding: 20px;
         }
-        /* Cores: laranja, preto, branco */
         .header {
             background-color: #f57c00;
             color: white;
@@ -270,7 +270,7 @@
             </div>
         </div>
 
-        <!-- Painel principal (oculto até login) -->
+        <!-- Painel principal -->
         <div id="mainPanel" style="display: none;">
             <div class="header">
                 <div class="logo" id="logoPlaceholder">🧹tabelas de Limpezas & Almoço🍽️</div>
@@ -324,7 +324,7 @@
                 </table>
             </div>
 
-            <!-- Painel Feriados (só admin) -->
+            <!-- Painel Feriados -->
             <div id="feriadosPanel" class="panel">
                 <div class="admin-controls">
                     <h3 style="margin:0; color:#f57c00;">Feriados Nacionais</h3>
@@ -336,7 +336,7 @@
             </div>
         </div>
 
-        <!-- Modal para adicionar/editar linha -->
+        <!-- Modal -->
         <div id="modal" class="modal">
             <div class="modal-content">
                 <h3 id="modalTitle">Adicionar</h3>
@@ -353,44 +353,27 @@
     <script>
         // ==================== DADOS INICIAIS ====================
         const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan'];
-        const storeRotation = ['Eddie', 'Talia', 'Ana Paula']; // sequência para loja (sem sábado)
-        const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme']; // sequência para banheiro
-        const lunchPattern = [
-            { compras: 'Talia', loucas: 'Ana', salada: 'Riquelme', descanso: 'Eddie' },
-            { compras: 'Ana', loucas: 'Riquelme', salada: 'Eddie', descanso: 'Talia' },
-            { compras: 'Talia', loucas: 'Eddie', salada: 'Ana', descanso: 'Riquelme' },
-            { compras: 'Eddie', loucas: 'Riquelme', salada: 'Talia', descanso: 'Ana' }
-        ]; // semana 1,2,3,4 (repete)
+        const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
+        const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
+        const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana']; // ordem fixa das pessoas para o rodízio
 
-        // Feriados nacionais 2026 (principais)
+        // Feriados nacionais 2026
         const defaultHolidays = [
-            '2026-01-01', // Confraternização Universal
-            '2026-02-16', // Carnaval (segunda)
-            '2026-02-17', // Carnaval (terça)
-            '2026-04-03', // Sexta-feira Santa
-            '2026-04-21', // Tiradentes
-            '2026-05-01', // Dia do Trabalho
-            '2026-06-04', // Corpus Christi
-            '2026-09-07', // Independência
-            '2026-10-12', // Nossa Srª Aparecida
-            '2026-11-02', // Finados
-            '2026-11-15', // Proclamação da República
-            '2026-12-25'  // Natal
+            '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
+            '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
+            '2026-11-15', '2026-12-25'
         ];
 
-        // Estado da aplicação
+        // Estado
         let currentUser = null;
         let isAdmin = false;
         let storeData = [];
         let bathroomData = [];
         let lunchData = [];
         let holidays = [...defaultHolidays];
-
-        // Controle do modal
-        let modalCallback = null;
         let modalContext = { type: null, index: null };
 
-        // ==================== INICIALIZAÇÃO ====================
+        // ==================== STORAGE ====================
         function loadFromStorage() {
             if (localStorage.getItem('storeData')) storeData = JSON.parse(localStorage.getItem('storeData'));
             if (localStorage.getItem('bathroomData')) bathroomData = JSON.parse(localStorage.getItem('bathroomData'));
@@ -404,33 +387,38 @@
             localStorage.setItem('holidays', JSON.stringify(holidays));
         }
 
-        // Geração inicial (se vazio)
-        function generateInitialData() {
-            if (storeData.length === 0) generateStoreSchedule('2026-02-18', 90);
-            if (bathroomData.length === 0) generateBathroomSchedule('2026-02-18', 26);
-            if (lunchData.length === 0) generateLunchSchedule();
-            saveToStorage();
-        }
-
-        // ==================== FUNÇÕES DE GERAÇÃO ====================
+        // ==================== FUNÇÕES AUXILIARES ====================
         function isSunday(dateStr) {
             return new Date(dateStr + 'T12:00:00').getDay() === 0;
         }
         function isHoliday(dateStr) {
             return holidays.includes(dateStr);
         }
+        function isLastDayOfMonth(dateStr) {
+            let d = new Date(dateStr + 'T12:00:00');
+            let lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            return d.getDate() === lastDay;
+        }
+        function isLastSaturdayOfMonth(dateStr) {
+            let d = new Date(dateStr + 'T12:00:00');
+            if (d.getDay() !== 6) return false; // só sábado
+            let nextDay = new Date(d);
+            nextDay.setDate(d.getDate() + 1);
+            let lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            return nextDay.getDate() === lastDayOfMonth && nextDay.getMonth() === d.getMonth();
+        }
 
+        // ==================== GERAÇÃO DAS ESCALAS ====================
         function generateStoreSchedule(startDate, daysAhead) {
             let current = new Date(startDate + 'T12:00:00');
             let end = new Date(current);
             end.setDate(end.getDate() + daysAhead);
-            let rotationIndex = storeRotation.indexOf('Ana Paula'); // começa com Ana Paula
+            let rotationIndex = storeRotation.indexOf('Ana Paula');
             let schedule = [];
-            
             while (current <= end) {
                 let dateStr = current.toISOString().split('T')[0];
                 if (!isSunday(dateStr) && !isHoliday(dateStr)) {
-                    if (current.getDay() === 6) { // sábado
+                    if (current.getDay() === 6) {
                         schedule.push({ date: dateStr, person: 'Riquelme' });
                     } else {
                         schedule.push({ date: dateStr, person: storeRotation[rotationIndex] });
@@ -447,11 +435,10 @@
             let current = new Date(startDate + 'T12:00:00');
             let end = new Date(current);
             end.setDate(end.getDate() + weeksAhead * 7);
-            let rotationIndex = bathroomRotation.indexOf('Riquelme'); // começa com Riquelme
+            let rotationIndex = bathroomRotation.indexOf('Riquelme');
             let schedule = [];
-            
             while (current <= end) {
-                if (current.getDay() === 3) { // quarta
+                if (current.getDay() === 3) {
                     let dateStr = current.toISOString().split('T')[0];
                     schedule.push({ date: dateStr, person: bathroomRotation[rotationIndex] });
                     rotationIndex = (rotationIndex + 1) % bathroomRotation.length;
@@ -463,31 +450,58 @@
         }
 
         function generateLunchSchedule() {
-            // Dados fornecidos até 28/02
-            let baseDates = [
-                '2026-02-07', '2026-02-14', '2026-02-21', '2026-02-28'
-            ];
+            // Configuração inicial: 21/02/2026 (sábado)
+            // Ordem das pessoas: [Talia, Eddie, Riquelme, Ana]
+            // Funções correspondentes: [Compras, Louças, Descanso, Salada]
+            let currentDate = new Date('2026-02-21T12:00:00');
+            let endDate = new Date(currentDate);
+            endDate.setMonth(endDate.getMonth() + 6); // gerar 6 meses
+
+            // Array de funções na ordem das pessoas para a semana inicial
+            let currentFunctions = ['Compras', 'Louças', 'Descanso', 'Salada'];
             let schedule = [];
-            for (let i = 0; i < baseDates.length; i++) {
-                schedule.push({
-                    date: baseDates[i],
-                    ...lunchPattern[i]
-                });
+
+            while (currentDate <= endDate) {
+                let dateStr = currentDate.toISOString().split('T')[0];
+                
+                // Mapear função -> pessoa
+                let compras = lunchPeople[currentFunctions.indexOf('Compras')];
+                let loucas = lunchPeople[currentFunctions.indexOf('Louças')];
+                let salada = lunchPeople[currentFunctions.indexOf('Salada')];
+                let descanso = lunchPeople[currentFunctions.indexOf('Descanso')];
+
+                let row = {
+                    date: dateStr,
+                    compras: compras,
+                    loucas: loucas,
+                    salada: salada,
+                    descanso: descanso
+                };
+
+                // Aplicar exceção: se for último dia do mês ou sábado véspera do último dia (fechamento no sábado)
+                if (isLastDayOfMonth(dateStr) || isLastSaturdayOfMonth(dateStr)) {
+                    // Descobrir em qual função Ana está
+                    if (row.compras === 'Ana') row.compras = 'Fechamento caixa';
+                    else if (row.loucas === 'Ana') row.loucas = 'Fechamento caixa';
+                    else if (row.salada === 'Ana') row.salada = 'Fechamento caixa';
+                    else if (row.descanso === 'Ana') row.descanso = 'Fechamento caixa';
+                }
+
+                schedule.push(row);
+
+                // Avançar para o próximo sábado
+                currentDate.setDate(currentDate.getDate() + 7);
+
+                // Rotacionar as funções para a direita (próxima semana)
+                // [f0, f1, f2, f3] -> [f3, f0, f1, f2]
+                currentFunctions = [
+                    currentFunctions[3],
+                    currentFunctions[0],
+                    currentFunctions[1],
+                    currentFunctions[2]
+                ];
             }
-            // Gerar próximos 6 meses de sábados
-            let lastDate = new Date('2026-02-28T12:00:00');
-            let end = new Date(lastDate);
-            end.setMonth(end.getMonth() + 6);
-            let patternIndex = 0; // começa do padrão semana 1 (índice 0) para a próxima semana
-            let nextSaturday = new Date(lastDate);
-            nextSaturday.setDate(nextSaturday.getDate() + 7); // 07/03
-            while (nextSaturday <= end) {
-                let dateStr = nextSaturday.toISOString().split('T')[0];
-                let pattern = lunchPattern[patternIndex % 4];
-                schedule.push({ date: dateStr, ...pattern });
-                patternIndex++;
-                nextSaturday.setDate(nextSaturday.getDate() + 7);
-            }
+
             lunchData = schedule;
             saveToStorage();
         }
@@ -570,11 +584,6 @@
             });
         }
 
-        function formatDate(dateStr) {
-            let [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
-        }
-
         // ==================== LOGIN / LOGOUT ====================
         window.loginEmployee = function() {
             let name = document.getElementById('employeeSelect').value;
@@ -601,7 +610,6 @@
             document.getElementById('mainPanel').style.display = 'block';
             document.getElementById('userDisplay').innerText = `Olá, ${currentUser} `;
             
-            // Mostrar controles de admin e aba feriados
             document.querySelectorAll('.admin-controls').forEach(el => el.style.display = isAdmin ? 'flex' : 'none');
             document.getElementById('holidayTab').style.display = isAdmin ? 'block' : 'none';
             if (!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
@@ -623,7 +631,13 @@
             document.getElementById('adminPassword').value = '';
         };
 
-        // ==================== ABAS ====================
+        function generateInitialData() {
+            if (storeData.length === 0) generateStoreSchedule('2026-02-18', 90);
+            if (bathroomData.length === 0) generateBathroomSchedule('2026-02-18', 26);
+            if (lunchData.length === 0) generateLunchSchedule();
+            saveToStorage();
+        }
+
         window.showTab = function(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -631,17 +645,17 @@
             document.getElementById(tab + 'Panel').classList.add('active');
         };
 
-        // ==================== CRUD (Admin) ====================
+        // ==================== CRUD ====================
         window.openAddRowModal = function(type) {
             document.getElementById('modalTitle').innerText = 'Adicionar - ' + (type === 'loja' ? 'Loja' : type === 'banheiro' ? 'Banheiro' : 'Almoço');
             document.getElementById('modalDate').value = '';
             let fields = document.getElementById('modalFields');
             if (type === 'almoco') {
                 fields.innerHTML = `
-                    <select id="modalCompras" placeholder="Compras">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
-                    <select id="modalLoucas" placeholder="Louças">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
-                    <select id="modalSalada" placeholder="Salada">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
-                    <select id="modalDescanso" placeholder="Descanso">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalCompras">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalLoucas">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalSalada">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalDescanso">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
                 `;
             } else {
                 fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>`;
@@ -710,7 +724,6 @@
                     else bathroomData.push(newRow);
                 }
             }
-            // Ordenar por data
             if (type === 'loja') storeData.sort((a,b) => a.date.localeCompare(b.date));
             if (type === 'banheiro') bathroomData.sort((a,b) => a.date.localeCompare(b.date));
             if (type === 'almoco') lunchData.sort((a,b) => a.date.localeCompare(b.date));
@@ -739,7 +752,7 @@
 
         // ==================== REGENERAR ====================
         window.regenerateStore = function() {
-            if (!confirm('Isso irá recriar a escala da loja a partir de hoje (18/02/2026) e apagar edições manuais. Continuar?')) return;
+            if (!confirm('Recriar escala da loja?')) return;
             generateStoreSchedule('2026-02-18', 90);
             renderTables();
         };
@@ -749,7 +762,7 @@
             renderTables();
         };
         window.regenerateLunch = function() {
-            if (!confirm('Recriar escala do almoço?')) return;
+            if (!confirm('Recriar escala do almoço? Isso aplicará o rodízio correto a partir de 21/02/2026.')) return;
             generateLunchSchedule();
             renderTables();
         };
