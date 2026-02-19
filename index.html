@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,22 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Rodízio de Limpeza</title>
     <style>
-        /* (mesmo estilo anterior, mantido) */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f4f4; color: #333; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         .header {
             background-color: #f57c00;
             color: white;
@@ -63,26 +49,11 @@
             transition: 0.3s;
             font-size: 14px;
         }
-        .btn:hover {
-            background-color: #f57c00;
-            color: white;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-            border-color: #bd2130;
-        }
-        .btn-danger:hover {
-            background-color: #bd2130;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-            border-color: #218838;
-        }
-        .btn-success:hover {
-            background-color: #218838;
-        }
+        .btn:hover { background-color: #f57c00; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; border-color: #bd2130; }
+        .btn-danger:hover { background-color: #bd2130; }
+        .btn-success { background-color: #28a745; color: white; border-color: #218838; }
+        .btn-success:hover { background-color: #218838; }
         .login-screen {
             display: flex;
             justify-content: center;
@@ -122,9 +93,7 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .login-card button:hover {
-            background-color: #e65100;
-        }
+        .login-card button:hover { background-color: #e65100; }
         .tabs {
             display: flex;
             background-color: white;
@@ -143,11 +112,7 @@
             border-radius: 5px 5px 0 0;
             font-size: 14px;
         }
-        .tab.active {
-            background-color: #f57c00;
-            color: white;
-            border-color: #f57c00;
-        }
+        .tab.active { background-color: #f57c00; color: white; border-color: #f57c00; }
         .panel {
             background-color: white;
             padding: 20px;
@@ -156,8 +121,10 @@
             display: none;
             overflow-x: auto;
         }
-        .panel.active {
-            display: block;
+        .panel.active { display: block; }
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         table {
             width: 100%;
@@ -176,9 +143,7 @@
             padding: 10px;
             text-align: left;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+        tr:nth-child(even) { background-color: #f9f9f9; }
         .action-buttons {
             display: flex;
             gap: 5px;
@@ -224,10 +189,7 @@
             border-radius: 4px;
             width: 100%;
         }
-        textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
+        textarea { resize: vertical; min-height: 60px; }
         .modal {
             display: none;
             position: fixed;
@@ -264,43 +226,24 @@
             color: #777;
         }
 
-        /* Responsividade */
+        /* Melhorias na responsividade para telas muito pequenas */
         @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-            }
-            .logo {
-                font-size: 18px;
-                padding: 8px;
-            }
-            .user-info {
-                margin-left: 0;
-                justify-content: center;
-            }
-            .tab {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            .admin-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .admin-controls button {
-                width: 100%;
-            }
-            th, td {
-                padding: 6px;
-                font-size: 12px;
-            }
-            .action-buttons button {
-                padding: 4px 8px;
-                font-size: 12px;
-            }
+            .container { padding: 10px; }
+            .header { flex-direction: column; align-items: stretch; text-align: center; }
+            .logo { font-size: 18px; padding: 8px; }
+            .user-info { margin-left: 0; justify-content: center; }
+            .tab { padding: 8px 12px; font-size: 12px; }
+            .admin-controls { flex-direction: column; align-items: stretch; }
+            .admin-controls button { width: 100%; }
+            th, td { padding: 6px; font-size: 12px; }
+            .action-buttons button { padding: 4px 8px; font-size: 12px; }
+            .action-buttons { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 480px) {
+            table { min-width: 100%; }
+            td, th { white-space: nowrap; }
+            .action-buttons button { width: 100%; margin: 2px 0; }
         }
     </style>
 </head>
@@ -462,62 +405,104 @@
     </div>
 
     <script>
+        // ==================== CONFIGURAÇÃO DO JSONBIN.IO ====================
+        // Substitua pelos seus dados:
+        const JSONBIN_ID = '6996fe8f43b1c97be98b5dd7';
+        const JSONBIN_API_KEY = '$2a$10$gSQvjJ3GVzk8hgcf//haAedlskIiOZc9JTZD7bAGEzX2juJj9mnK2';
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+        const JSONBIN_UPDATE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+
         // ==================== DADOS INICIAIS ====================
         const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan', 'David'];
         const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
         const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
         const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana'];
 
-        // Feriados nacionais 2026
-        const defaultHolidays = [
-            '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
-            '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
-            '2026-11-15', '2026-12-25'
-        ];
-
-        // Dados iniciais das folgas (sequência fornecida)
-        const initialFolgas = [
-            { funcionario: 'Eddie', data: '2026-01-06', observacoes: '' },
-            { funcionario: 'Johnathan', data: '2026-01-13', observacoes: '' },
-            { funcionario: 'Higor', data: '2026-01-20', observacoes: '' },
-            { funcionario: 'Ana Paula', data: '2026-01-27', observacoes: '' },
-            { funcionario: 'Talia', data: '2026-02-03', observacoes: '' },
-            { funcionario: 'Riquelme', data: '2026-02-10', observacoes: '' },
-            { funcionario: 'Henrique', data: '2026-02-17', observacoes: '' },
-            { funcionario: 'David', data: '2026-02-24', observacoes: '' }
-        ];
-
-        // Estado da aplicação
-        let currentUser = null;
-        let isAdmin = false;
-        let isAna = false;
+        // Estado em memória
         let storeData = [];
         let bathroomData = [];
         let lunchData = [];
         let folgasData = [];
-        let holidays = [...defaultHolidays];
+        let holidays = [];
 
-        // Controles de modal
+        let currentUser = null;
+        let isAdmin = false;
+        let isAna = false;
+
         let modalContext = { type: null, index: null };
         let folgaModalContext = { index: null };
 
-        // ==================== STORAGE ====================
-        function loadFromStorage() {
-            if (localStorage.getItem('storeData')) storeData = JSON.parse(localStorage.getItem('storeData'));
-            if (localStorage.getItem('bathroomData')) bathroomData = JSON.parse(localStorage.getItem('bathroomData'));
-            if (localStorage.getItem('lunchData')) lunchData = JSON.parse(localStorage.getItem('lunchData'));
-            if (localStorage.getItem('folgasData')) folgasData = JSON.parse(localStorage.getItem('folgasData'));
-            if (localStorage.getItem('holidays')) holidays = JSON.parse(localStorage.getItem('holidays'));
-        }
-        function saveToStorage() {
-            localStorage.setItem('storeData', JSON.stringify(storeData));
-            localStorage.setItem('bathroomData', JSON.stringify(bathroomData));
-            localStorage.setItem('lunchData', JSON.stringify(lunchData));
-            localStorage.setItem('folgasData', JSON.stringify(folgasData));
-            localStorage.setItem('holidays', JSON.stringify(holidays));
+        // ==================== CARREGAR DADOS DO JSONBIN ====================
+        async function carregarDados() {
+            try {
+                const resposta = await fetch(JSONBIN_URL, {
+                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
+                });
+                if (!resposta.ok) throw new Error('Erro ao carregar dados');
+                const dados = await resposta.json();
+                storeData = dados.record.storeData || [];
+                bathroomData = dados.record.bathroomData || [];
+                lunchData = dados.record.lunchData || [];
+                folgasData = dados.record.folgasData || [];
+                holidays = dados.record.holidays || [];
+            } catch (erro) {
+                console.warn('Usando dados padrão locais', erro);
+                gerarDadosPadrao();
+            }
+            renderTables();
         }
 
-        // ==================== FUNÇÕES AUXILIARES ====================
+        // ==================== SALVAR DADOS NO JSONBIN ====================
+        async function salvarDados() {
+            if (!isAdmin && !isAna) return;
+
+            const dados = {
+                storeData,
+                bathroomData,
+                lunchData,
+                folgasData,
+                holidays
+            };
+
+            try {
+                const resposta = await fetch(JSONBIN_UPDATE_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(dados)
+                });
+                if (!resposta.ok) throw new Error('Erro ao salvar dados');
+                console.log('Dados salvos com sucesso');
+            } catch (erro) {
+                alert('Erro ao salvar: ' + erro.message);
+            }
+        }
+
+        // ==================== DADOS PADRÃO ====================
+        function gerarDadosPadrao() {
+            storeData = gerarStoreSchedule('2026-02-18', 90);
+            bathroomData = gerarBathroomSchedule('2026-02-18', 26);
+            lunchData = gerarLunchSchedule('2026-02-21');
+            folgasData = [
+                { funcionario: 'Eddie', data: '2026-01-06', observacoes: '' },
+                { funcionario: 'Johnathan', data: '2026-01-13', observacoes: '' },
+                { funcionario: 'Higor', data: '2026-01-20', observacoes: '' },
+                { funcionario: 'Ana Paula', data: '2026-01-27', observacoes: '' },
+                { funcionario: 'Talia', data: '2026-02-03', observacoes: '' },
+                { funcionario: 'Riquelme', data: '2026-02-10', observacoes: '' },
+                { funcionario: 'Henrique', data: '2026-02-17', observacoes: '' },
+                { funcionario: 'David', data: '2026-02-24', observacoes: '' }
+            ];
+            holidays = [
+                '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
+                '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
+                '2026-11-15', '2026-12-25'
+            ];
+        }
+
+        // ==================== FUNÇÕES DE GERAÇÃO ====================
         function isSunday(dateStr) {
             return new Date(dateStr + 'T12:00:00').getDay() === 0;
         }
@@ -538,11 +523,11 @@
             return nextDay.getDate() === lastDayOfMonth && nextDay.getMonth() === d.getMonth();
         }
 
-        // ==================== GERAÇÃO DAS ESCALAS ====================
-        function generateStoreSchedule(startDate, daysAhead) {
+        function gerarStoreSchedule(startDate, daysAhead) {
             let current = new Date(startDate + 'T12:00:00');
             let end = new Date(current);
             end.setDate(end.getDate() + daysAhead);
+            // Começar com Ana Paula, pois no dia 18/02 ela limpou
             let rotationIndex = storeRotation.indexOf('Ana Paula');
             let schedule = [];
             while (current <= end) {
@@ -557,11 +542,10 @@
                 }
                 current.setDate(current.getDate() + 1);
             }
-            storeData = schedule;
-            saveToStorage();
+            return schedule;
         }
 
-        function generateBathroomSchedule(startDate, weeksAhead) {
+        function gerarBathroomSchedule(startDate, weeksAhead) {
             let current = new Date(startDate + 'T12:00:00');
             let end = new Date(current);
             end.setDate(end.getDate() + weeksAhead * 7);
@@ -575,20 +559,17 @@
                 }
                 current.setDate(current.getDate() + 1);
             }
-            bathroomData = schedule;
-            saveToStorage();
+            return schedule;
         }
 
-        function generateLunchSchedule(startDate) {
+        function gerarLunchSchedule(startDate) {
             let currentDate = new Date(startDate + 'T12:00:00');
             let endDate = new Date(currentDate);
             endDate.setMonth(endDate.getMonth() + 6);
-
             let referenceDate = new Date('2026-02-21T12:00:00');
             let diffTime = currentDate - referenceDate;
             let diffWeeks = Math.round(diffTime / (7 * 24 * 60 * 60 * 1000));
             if (diffWeeks < 0) diffWeeks = 0;
-
             let baseFunctions = ['Compras', 'Louças', 'Descanso', 'Salada'];
             let currentFunctions = [...baseFunctions];
             for (let i = 0; i < diffWeeks; i++) {
@@ -599,32 +580,21 @@
                     currentFunctions[2]
                 ];
             }
-
             let schedule = [];
             let tempDate = new Date(currentDate);
             while (tempDate <= endDate) {
-                let dateStr = tempDate.toISOString().split('T')['0'];
-                
+                let dateStr = tempDate.toISOString().split('T')[0];
                 let compras = lunchPeople[currentFunctions.indexOf('Compras')];
                 let loucas = lunchPeople[currentFunctions.indexOf('Louças')];
                 let salada = lunchPeople[currentFunctions.indexOf('Salada')];
                 let descanso = lunchPeople[currentFunctions.indexOf('Descanso')];
-
-                let row = {
-                    date: dateStr,
-                    compras: compras,
-                    loucas: loucas,
-                    salada: salada,
-                    descanso: descanso
-                };
-
+                let row = { date: dateStr, compras, loucas, salada, descanso };
                 if (isLastDayOfMonth(dateStr) || isLastSaturdayOfMonth(dateStr)) {
                     let anaFunction = null;
                     if (row.compras === 'Ana') anaFunction = 'compras';
                     else if (row.loucas === 'Ana') anaFunction = 'loucas';
                     else if (row.salada === 'Ana') anaFunction = 'salada';
                     else if (row.descanso === 'Ana') anaFunction = 'descanso';
-
                     if (anaFunction && anaFunction !== 'descanso') {
                         let pessoaDescanso = row.descanso;
                         row[anaFunction] = pessoaDescanso;
@@ -633,9 +603,7 @@
                         row.descanso = 'Fechamento caixa';
                     }
                 }
-
                 schedule.push(row);
-
                 tempDate.setDate(tempDate.getDate() + 7);
                 currentFunctions = [
                     currentFunctions[3],
@@ -644,34 +612,7 @@
                     currentFunctions[2]
                 ];
             }
-
-            lunchData = schedule;
-            saveToStorage();
-        }
-
-        // ==================== ATUALIZAR PARA DATA ATUAL ====================
-        function updateToCurrentDate() {
-            if (!confirm('Isso irá recriar todas as escalas a partir da data de hoje, mantendo os padrões. As edições manuais serão perdidas. Continuar?')) return;
-            
-            let hoje = new Date();
-            let ano = hoje.getFullYear();
-            let mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            let dia = String(hoje.getDate()).padStart(2, '0');
-            let hojeStr = `${ano}-${mes}-${dia}`;
-
-            generateStoreSchedule(hojeStr, 90);
-            generateBathroomSchedule(hojeStr, 26);
-
-            let hojeDate = new Date(hojeStr + 'T12:00:00');
-            let diaSemana = hojeDate.getDay();
-            let diffParaSabado = (6 - diaSemana + 7) % 7;
-            if (diffParaSabado === 0) diffParaSabado = 7;
-            let primeiroSabado = new Date(hojeDate);
-            primeiroSabado.setDate(hojeDate.getDate() + diffParaSabado);
-            let primeiroSabadoStr = primeiroSabado.toISOString().split('T')[0];
-            generateLunchSchedule(primeiroSabadoStr);
-
-            renderTables();
+            return schedule;
         }
 
         // ==================== RENDERIZAÇÃO ====================
@@ -822,14 +763,6 @@
             document.getElementById('holidayTab').style.display = isAdmin ? 'block' : 'none';
             if (!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
             
-            loadFromStorage();
-            if (storeData.length === 0 || bathroomData.length === 0 || lunchData.length === 0) {
-                generateInitialData();
-            }
-            if (folgasData.length === 0) {
-                folgasData = [...initialFolgas];
-                saveToStorage();
-            }
             renderTables();
         }
 
@@ -844,12 +777,6 @@
             document.getElementById('adminPassword').value = '';
             document.getElementById('anaPassword').value = '';
         };
-
-        function generateInitialData() {
-            generateStoreSchedule('2026-02-18', 90);
-            generateBathroomSchedule('2026-02-18', 26);
-            generateLunchSchedule('2026-02-21');
-        }
 
         window.showTab = function(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -905,7 +832,7 @@
             if (type === 'loja') storeData.splice(index, 1);
             else if (type === 'banheiro') bathroomData.splice(index, 1);
             else lunchData.splice(index, 1);
-            saveToStorage();
+            salvarDados();
             renderTables();
         };
 
@@ -941,12 +868,12 @@
             if (type === 'banheiro') bathroomData.sort((a,b) => a.date.localeCompare(b.date));
             if (type === 'almoco') lunchData.sort((a,b) => a.date.localeCompare(b.date));
             
-            saveToStorage();
+            salvarDados();
             renderTables();
             closeModal();
         };
 
-        // ==================== CRUD para folgas (Ana e admin) ====================
+        // ==================== CRUD para folgas ====================
         window.openAddFolgaModal = function() {
             document.getElementById('folgaModalTitle').innerText = 'Adicionar folga';
             document.getElementById('folgaFuncionario').value = 'Ana Paula';
@@ -969,7 +896,7 @@
         window.deleteFolga = function(index) {
             if (!confirm('Remover esta folga?')) return;
             folgasData.splice(index, 1);
-            saveToStorage();
+            salvarDados();
             renderFolgas();
         };
 
@@ -979,7 +906,7 @@
             if (!obs.startsWith('✅')) {
                 item.observacoes = '✅ ' + obs;
             }
-            saveToStorage();
+            salvarDados();
             renderFolgas();
         };
 
@@ -1002,7 +929,7 @@
                 folgasData.push(newFolga);
             }
             folgasData.sort((a, b) => a.data.localeCompare(b.data));
-            saveToStorage();
+            salvarDados();
             renderFolgas();
             closeFolgaModal();
         };
@@ -1013,14 +940,14 @@
             if (!date) return;
             if (!holidays.includes(date)) holidays.push(date);
             holidays.sort();
-            saveToStorage();
+            salvarDados();
             renderHolidays();
             document.getElementById('newHolidayDate').value = '';
         };
 
         window.removeHoliday = function(date) {
             holidays = holidays.filter(d => d !== date);
-            saveToStorage();
+            salvarDados();
             renderHolidays();
         };
 
@@ -1032,9 +959,11 @@
             let mes = String(hoje.getMonth() + 1).padStart(2, '0');
             let dia = String(hoje.getDate()).padStart(2, '0');
             let hojeStr = `${ano}-${mes}-${dia}`;
-            generateStoreSchedule(hojeStr, 90);
+            storeData = gerarStoreSchedule(hojeStr, 90);
+            salvarDados();
             renderTables();
         };
+
         window.regenerateBathroom = function() {
             if (!confirm('Recriar escala do banheiro?')) return;
             let hoje = new Date();
@@ -1042,9 +971,11 @@
             let mes = String(hoje.getMonth() + 1).padStart(2, '0');
             let dia = String(hoje.getDate()).padStart(2, '0');
             let hojeStr = `${ano}-${mes}-${dia}`;
-            generateBathroomSchedule(hojeStr, 26);
+            bathroomData = gerarBathroomSchedule(hojeStr, 26);
+            salvarDados();
             renderTables();
         };
+
         window.regenerateLunch = function() {
             if (!confirm('Recriar escala do almoço a partir da data atual?')) return;
             let hoje = new Date();
@@ -1059,18 +990,34 @@
             let primeiroSabado = new Date(hojeDate);
             primeiroSabado.setDate(hojeDate.getDate() + diffParaSabado);
             let primeiroSabadoStr = primeiroSabado.toISOString().split('T')[0];
-            generateLunchSchedule(primeiroSabadoStr);
+            lunchData = gerarLunchSchedule(primeiroSabadoStr);
+            salvarDados();
             renderTables();
         };
 
-        window.updateToCurrentDate = updateToCurrentDate;
+        window.updateToCurrentDate = function() {
+            if (!confirm('Isso irá recriar todas as escalas a partir da data de hoje. Continuar?')) return;
+            let hoje = new Date();
+            let ano = hoje.getFullYear();
+            let mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            let dia = String(hoje.getDate()).padStart(2, '0');
+            let hojeStr = `${ano}-${mes}-${dia}`;
+            storeData = gerarStoreSchedule(hojeStr, 90);
+            bathroomData = gerarBathroomSchedule(hojeStr, 26);
+            let hojeDate = new Date(hojeStr + 'T12:00:00');
+            let diaSemana = hojeDate.getDay();
+            let diffParaSabado = (6 - diaSemana + 7) % 7;
+            if (diffParaSabado === 0) diffParaSabado = 7;
+            let primeiroSabado = new Date(hojeDate);
+            primeiroSabado.setDate(hojeDate.getDate() + diffParaSabado);
+            let primeiroSabadoStr = primeiroSabado.toISOString().split('T')[0];
+            lunchData = gerarLunchSchedule(primeiroSabadoStr);
+            salvarDados();
+            renderTables();
+        };
 
-        // Inicialização
-        loadFromStorage();
-        if (folgasData.length === 0) {
-            folgasData = [...initialFolgas];
-            saveToStorage();
-        }
+        // Inicializar
+        carregarDados();
     </script>
 </body>
 </html>
