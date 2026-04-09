@@ -832,7 +832,7 @@
             afazeresData.forEach((afazer, cardIdx) => {
                 const card = document.createElement('div'); card.className = 'card';
                 card.innerHTML = `
-                    <div class="card-header" style="background: #ff9800; color:white;">
+                    <div class="card-header" style="background: #e70017; color:white;">
                         <span class="card-title">${afazer.titulo}</span>
                         ${isAdmin ? `<div class="card-actions"><button class="btn-icon" onclick="editAfazer(${cardIdx})">✏️</button><button class="btn-icon" onclick="deleteAfazer(${cardIdx})">🗑️</button></div>` : ''}
                     </div>
