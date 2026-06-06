@@ -230,7 +230,7 @@ textarea { resize: vertical; min-height: 60px; }
             <div class="tab active" onclick="showTab('loja')">🧹 Loja</div>
             <div class="tab" onclick="showTab('banheiro')">🧼 Banheiro</div>
             <div class="tab" onclick="showTab('almoco')">🍽️ Almoço</div>
-            <div class="tab" onclick="showTab('folgas')">📅 Folgas Terçais</div>
+            <div class="tab" onclick="showTab('folgas')">📅 Folgas Terças</div>
             <div class="tab" onclick="showTab('lembretes')">📋 Lembretes</div>
             <div class="tab" onclick="showTab('afazeres')">✅ Afazeres</div>
             <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄 Feriados</div>
@@ -258,15 +258,15 @@ textarea { resize: vertical; min-height: 60px; }
                 <button class="btn" onclick="regenerateLunch()">🔄 Regenerar almoço</button>
                 <button class="btn btn-success" onclick="updateToCurrentDate()">📅 Atualizar para hoje</button>
             </div>
-            <div class="table-wrapper"><table id="almocoTable"><thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th>Descanso</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-wrapper"><table id="almocoTable"><thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th>Descanso</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead><tbody></tbody></tr></div>
         </div>
 
         <div id="folgasPanel" class="panel">
             <div id="folgasAdminControls" class="admin-controls" style="display: none;">
                 <button class="btn" onclick="openAddFolgaModal()">➕ Adicionar folga</button>
-                <button class="btn btn-success" onclick="regenerateAutomaticFolgas()">🔄 Regenerar folgas (4 ciclos)</button>
+                <button class="btn btn-success" onclick="regenerateAutomaticFolgas()">🔄 Regenerar folgas (4 ciclos - Terças)</button>
             </div>
-            <div class="table-wrapper"><table id="folgasTable"><thead><tr><th>Funcionário</th><th>Data</th><th>Observações</th><th id="folgasActionsHeader" style="display: none;">Ações</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-wrapper"><table id="folgasTable"><thead><tr><th>Funcionário</th><th>Data (Terça-feira)</th><th>Observações</th><th id="folgasActionsHeader" style="display: none;">Ações</th></tr></thead><tbody></tbody></table></div>
         </div>
 
         <div id="lembretesPanel" class="panel">
@@ -311,7 +311,7 @@ const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
 const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
 const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana Paula']; // compras, louças, salada, descanso
 
-// ORDEM FIXA DAS FOLGAS (respeitando a sequência solicitada)
+// ORDEM FIXA DAS FOLGAS (Terça-feira)
 const ordemFolgas = ['Eddie', 'Johnathan', 'Higor', 'Ana Paula', 'Talia', 'Riquelme', 'Henrique', 'David'];
 
 let storeData = [], bathroomData = [], lunchData = [], folgasData = [], holidays = [], lembretesData = [], afazeresData = [];
@@ -328,42 +328,58 @@ function isLastSaturdayOfMonth(d) { let dt = new Date(d+'T12:00:00'); if(dt.getD
 function formatDateWithWeekday(d) { let dt = new Date(d+'T12:00:00'); let wd = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']; let [y,m,dia] = d.split('-'); return `${dia}/${m}/${y} - ${wd[dt.getDay()]}`; }
 function funcionarioEstaDeFolga(data, funcionario) { return folgasData.some(f => f.data === data && f.funcionario === funcionario); }
 
-// ---------- GERAÇÃO DE FOLGAS (ordem fixa, 4 ciclos completos, cada folga em um sábado) ----------
+// ---------- GERAÇÃO DE FOLGAS (TODA TERÇA-FEIRA, ORDEM FIXA, 4 CICLOS) ----------
+function getProximasTercas(quantidade) {
+    let hoje = new Date();
+    let diaSemana = hoje.getDay(); // 0=domingo, 1=segunda, 2=terça, ...
+    let diasParaProximaTerca = (2 - diaSemana + 7) % 7;
+    if (diasParaProximaTerca === 0) diasParaProximaTerca = 7; // se hoje é terça, pegar a próxima
+    let data = new Date(hoje);
+    data.setDate(hoje.getDate() + diasParaProximaTerca);
+    let datas = [];
+    for (let i = 0; i < quantidade; i++) {
+        datas.push(data.toISOString().split('T')[0]);
+        data.setDate(data.getDate() + 7);
+    }
+    return datas;
+}
+
 function gerarFolgasAutomaticamente(ciclos = 4) {
     const totalFunc = ordemFolgas.length; // 8
-    const numNecessarias = ciclos * totalFunc; // 32
-    // Se já existem folgas o suficiente, não recria automaticamente (mas o botão de regenerar substitui)
-    if (folgasData.length >= numNecessarias) return;
+    const totalFolgasNecessarias = ciclos * totalFunc; // 32
+    if (folgasData.length >= totalFolgasNecessarias) return;
 
-    // Determinar a primeira data de folga: próximo sábado (dia 6) a partir de hoje
-    let hoje = new Date();
-    let diasAteSabado = (6 - hoje.getDay() + 7) % 7;
-    if (diasAteSabado === 0) diasAteSabado = 7; // se hoje é sábado, pegar o próximo
-    let primeiraData = new Date(hoje);
-    primeiraData.setDate(hoje.getDate() + diasAteSabado);
-    let dataAtual = new Date(primeiraData);
-
-    // Se já existem folgas, continuar a partir da última data + 7 dias (para não duplicar)
+    // Determinar a lista de datas (terças-feiras) suficientes
+    let tercas = getProximasTercas(totalFolgasNecessarias);
+    
+    // Se já existem folgas, continuar a partir da última data existente + 7 dias
+    let startIndex = 0;
     if (folgasData.length > 0) {
         const ultimas = [...folgasData].sort((a,b)=>b.data.localeCompare(a.data));
         const ultimaData = new Date(ultimas[0].data + 'T12:00:00');
-        dataAtual = new Date(ultimaData);
-        dataAtual.setDate(dataAtual.getDate() + 7);
+        let novaData = new Date(ultimaData);
+        novaData.setDate(ultimaData.getDate() + 7);
+        // recriar lista de tercas a partir dessa nova data
+        let novasDatas = [];
+        for (let i = 0; i < totalFolgasNecessarias; i++) {
+            novasDatas.push(novaData.toISOString().split('T')[0]);
+            novaData.setDate(novaData.getDate() + 7);
+        }
+        tercas = novasDatas;
+        startIndex = folgasData.length; // índice de início na ordem
     }
 
     let novasFolgas = [];
-    let idx = 0; // índice na ordem fixa
-
-    while (novasFolgas.length < numNecessarias) {
-        let dataStr = dataAtual.toISOString().split('T')[0];
+    let idx = startIndex % totalFunc;
+    for (let i = 0; i < tercas.length; i++) {
         let funcionario = ordemFolgas[idx % totalFunc];
-        // Evitar duplicar exatamente a mesma data+funcionário
+        let dataStr = tercas[i];
+        // Evitar duplicar com folgas já existentes
         if (!folgasData.some(f => f.data === dataStr && f.funcionario === funcionario) &&
             !novasFolgas.some(f => f.data === dataStr && f.funcionario === funcionario)) {
             novasFolgas.push({ funcionario, data: dataStr, observacoes: '' });
             idx++;
         }
-        dataAtual.setDate(dataAtual.getDate() + 7);
     }
 
     folgasData.push(...novasFolgas);
@@ -374,7 +390,7 @@ function gerarFolgasAutomaticamente(ciclos = 4) {
 
 function regenerateAutomaticFolgas() {
     if (!isAdmin && !isAna) return;
-    if (confirm("Recriar 4 ciclos completos de folgas seguindo a ordem: Eddie → Johnathan → Higor → Ana Paula → Talia → Riquelme → Henrique → David. Todas as folgas existentes serão substituídas.")) {
+    if (confirm("Recriar 4 ciclos completos de folgas (terças-feiras) seguindo a ordem: Eddie → Johnathan → Higor → Ana Paula → Talia → Riquelme → Henrique → David. Todas as folgas existentes serão substituídas.")) {
         folgasData = [];
         gerarFolgasAutomaticamente(4);
         if (confirm("Deseja também recriar as escalas de limpeza (loja e banheiro) respeitando as novas folgas?")) {
