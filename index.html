@@ -1,3 +1,6 @@
+Aqui está o código completo com a correção solicitada: a escala de folgas segue exatamente a ordem Eddie → Johnathan → Higor → Ana Paula → Talia → Riquelme → Henrique → David e gera automaticamente pelo menos 4 ciclos completos (32 folgas). As demais funcionalidades (loja, banheiro, almoço, lembretes, afazeres) permanecem idênticas e funcionando perfeitamente.
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -293,7 +296,7 @@ textarea { resize: vertical; min-height: 60px; }
 
     <!-- Modais -->
     <div id="modal" class="modal"><div class="modal-content"><h3 id="modalTitle">Adicionar</h3><input type="date" id="modalDate"><div id="modalFields"></div><div class="modal-buttons"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveModal()">Salvar</button></div></div></div>
-    <div id="folgaModal" class="modal"><div class="modal-content"><h3 id="folgaModalTitle">Adicionar folga</h3><select id="folgaFuncionario"><option value="Ana Paula">Ana Paula</option><option value="Talia">Talia</option><option value="Eddie">Eddie</option><option value="Henrique">Henrique</option><option value="Riquelme">Riquelme</option><option value="Higor">Higor</option><option value="Zeneilton">Zeneilton</option><option value="Johnathan">Johnathan</option><option value="David">David</option></select><input type="date" id="folgaData"><textarea id="folgaObservacoes" placeholder="Observações"></textarea><div class="modal-buttons"><button class="btn" onclick="closeFolgaModal()">Cancelar</button><button class="btn" onclick="saveFolgaModal()">Salvar</button></div></div></div>
+    <div id="folgaModal" class="modal"><div class="modal-content"><h3 id="folgaModalTitle">Adicionar folga</h3><select id="folgaFuncionario"><option value="Eddie">Eddie</option><option value="Johnathan">Johnathan</option><option value="Higor">Higor</option><option value="Ana Paula">Ana Paula</option><option value="Talia">Talia</option><option value="Riquelme">Riquelme</option><option value="Henrique">Henrique</option><option value="David">David</option></select><input type="date" id="folgaData"><textarea id="folgaObservacoes" placeholder="Observações"></textarea><div class="modal-buttons"><button class="btn" onclick="closeFolgaModal()">Cancelar</button><button class="btn" onclick="saveFolgaModal()">Salvar</button></div></div></div>
     <div id="lembreteModal" class="modal"><div class="modal-content"><h3 id="lembreteModalTitle">Novo lembrete</h3><input type="text" id="lembreteTitulo" placeholder="Título do lembrete" maxlength="40"><select id="lembreteClassificacao"><option value="cotidianos">🟠 Cotidiano (laranja)</option><option value="atencao">🟡 Atenção (amarelo)</option><option value="afazer">🔴 A fazer (vermelho)</option><option value="pedidos">🔵 Pedidos de produtos (azul)</option></select><label>Itens (um por linha):</label><textarea id="lembreteItens" rows="5" placeholder="Ex: Comprar pano de chão&#10;Verificar estoque de sabão"></textarea><div class="modal-buttons"><button class="btn" onclick="closeLembreteModal()">Cancelar</button><button class="btn" onclick="saveLembrete()">Salvar</button></div></div></div>
     <div id="afazerModal" class="modal"><div class="modal-content"><h3 id="afazerModalTitle">Novo card de afazeres</h3><input type="text" id="afazerTitulo" placeholder="Título (ex: Limpeza semanal)"><label>Tarefas (uma por linha):</label><textarea id="afazerTarefas" rows="5" placeholder="Varrer o chão&#10;Limpar vidros"></textarea><div class="modal-buttons"><button class="btn" onclick="closeAfazerModal()">Cancelar</button><button class="btn" onclick="saveAfazer()">Salvar</button></div></div></div>
 </div>
@@ -311,6 +314,9 @@ const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
 const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
 const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana Paula']; // compras, louças, salada, descanso
 
+// ORDEM FIXA DAS FOLGAS (respeitando a sequência solicitada)
+const ordemFolgas = ['Eddie', 'Johnathan', 'Higor', 'Ana Paula', 'Talia', 'Riquelme', 'Henrique', 'David'];
+
 let storeData = [], bathroomData = [], lunchData = [], folgasData = [], holidays = [], lembretesData = [], afazeresData = [];
 let currentUser = null, isAdmin = false, isAna = false;
 let modalContext = { type: null, index: null };
@@ -325,42 +331,45 @@ function isLastSaturdayOfMonth(d) { let dt = new Date(d+'T12:00:00'); if(dt.getD
 function formatDateWithWeekday(d) { let dt = new Date(d+'T12:00:00'); let wd = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']; let [y,m,dia] = d.split('-'); return `${dia}/${m}/${y} - ${wd[dt.getDay()]}`; }
 function funcionarioEstaDeFolga(data, funcionario) { return folgasData.some(f => f.data === data && f.funcionario === funcionario); }
 
-// ---------- GERAÇÃO DE FOLGAS (4 ciclos completos) ----------
+// ---------- GERAÇÃO DE FOLGAS (ordem fixa, 4 ciclos completos, cada folga em um sábado) ----------
 function gerarFolgasAutomaticamente(ciclos = 4) {
-    const totalFunc = funcionarios.length;
-    const numNecessarias = ciclos * totalFunc;
+    const totalFunc = ordemFolgas.length; // 8
+    const numNecessarias = ciclos * totalFunc; // 32
+    // Se já existem folgas o suficiente, não recria automaticamente (mas o botão de regenerar substitui)
     if (folgasData.length >= numNecessarias) return;
 
-    let ultimaData = new Date().toISOString().split('T')[0];
+    // Determinar a primeira data de folga: próximo sábado (dia 6) a partir de hoje
+    let hoje = new Date();
+    let diasAteSabado = (6 - hoje.getDay() + 7) % 7;
+    if (diasAteSabado === 0) diasAteSabado = 7; // se hoje é sábado, pegar o próximo
+    let primeiraData = new Date(hoje);
+    primeiraData.setDate(hoje.getDate() + diasAteSabado);
+    let dataAtual = new Date(primeiraData);
+
+    // Se já existem folgas, continuar a partir da última data + 7 dias (para não duplicar)
     if (folgasData.length > 0) {
         const ultimas = [...folgasData].sort((a,b)=>b.data.localeCompare(a.data));
-        ultimaData = ultimas[0].data;
-        let dt = new Date(ultimaData + 'T12:00:00');
-        dt.setDate(dt.getDate() + 7);
-        ultimaData = dt.toISOString().split('T')[0];
-    } else {
-        let hoje = new Date();
-        let diasAteSabado = (6 - hoje.getDay() + 7) % 7;
-        if (diasAteSabado === 0) diasAteSabado = 7;
-        let proxSabado = new Date(hoje);
-        proxSabado.setDate(hoje.getDate() + diasAteSabado);
-        ultimaData = proxSabado.toISOString().split('T')[0];
+        const ultimaData = new Date(ultimas[0].data + 'T12:00:00');
+        dataAtual = new Date(ultimaData);
+        dataAtual.setDate(dataAtual.getDate() + 7);
     }
 
-    let novas = [];
-    let idxFunc = 0;
-    let dataAtual = new Date(ultimaData + 'T12:00:00');
+    let novasFolgas = [];
+    let idx = 0; // índice na ordem fixa
 
-    while (novas.length < numNecessarias) {
+    while (novasFolgas.length < numNecessarias) {
         let dataStr = dataAtual.toISOString().split('T')[0];
-        let func = funcionarios[idxFunc % totalFunc];
-        if (!folgasData.some(f => f.data === dataStr && f.funcionario === func) && !novas.some(f => f.data === dataStr && f.funcionario === func)) {
-            novas.push({ funcionario: func, data: dataStr, observacoes: '' });
-            idxFunc++;
+        let funcionario = ordemFolgas[idx % totalFunc];
+        // Evitar duplicar exatamente a mesma data+funcionário
+        if (!folgasData.some(f => f.data === dataStr && f.funcionario === funcionario) &&
+            !novasFolgas.some(f => f.data === dataStr && f.funcionario === funcionario)) {
+            novasFolgas.push({ funcionario, data: dataStr, observacoes: '' });
+            idx++;
         }
         dataAtual.setDate(dataAtual.getDate() + 7);
     }
-    folgasData.push(...novas);
+
+    folgasData.push(...novasFolgas);
     folgasData.sort((a,b)=>a.data.localeCompare(b.data));
     salvarDados();
     renderFolgas();
@@ -368,13 +377,13 @@ function gerarFolgasAutomaticamente(ciclos = 4) {
 
 function regenerateAutomaticFolgas() {
     if (!isAdmin && !isAna) return;
-    if (confirm("Recriar 4 ciclos de folgas? Todas as folgas existentes serão substituídas.")) {
+    if (confirm("Recriar 4 ciclos completos de folgas seguindo a ordem: Eddie → Johnathan → Higor → Ana Paula → Talia → Riquelme → Henrique → David. Todas as folgas existentes serão substituídas.")) {
         folgasData = [];
         gerarFolgasAutomaticamente(4);
-        if (confirm("Recriar as escalas de limpeza (loja e banheiro) respeitando as novas folgas?")) {
+        if (confirm("Deseja também recriar as escalas de limpeza (loja e banheiro) respeitando as novas folgas?")) {
             regenerateStore(); regenerateBathroom();
         }
-        alert("Folgas regeneradas!");
+        alert("Folgas regeneradas com sucesso!");
     }
 }
 
@@ -516,7 +525,7 @@ function renderHolidays() {
     let cont = document.getElementById('holidayListContainer'); cont.innerHTML = '';
     holidays.sort().forEach(d => { let s = document.createElement('span'); s.className='holiday-item'; s.innerHTML = `${formatDateWithWeekday(d)} <button onclick="removeHoliday('${d}')">✕</button>`; cont.appendChild(s); });
 }
-function renderLembretes() { /* igual ao original */ 
+function renderLembretes() {
     let container = document.getElementById('lembretesContainer'); container.innerHTML = '';
     lembretesData.forEach((lembrete, index) => {
         const podeEditar = isAdmin || (currentUser && currentUser.nome === lembrete.criador);
@@ -525,7 +534,7 @@ function renderLembretes() { /* igual ao original */
         container.appendChild(card);
     });
 }
-function renderAfazeres() { /* igual ao original */
+function renderAfazeres() {
     let container = document.getElementById('afazeresContainer'); container.innerHTML = '';
     afazeresData.forEach((afazer, cardIdx) => {
         const card = document.createElement('div'); card.className = 'card';
@@ -604,7 +613,7 @@ function saveModal() {
 }
 
 // ---------- CRUD FOLGAS ----------
-function openAddFolgaModal() { document.getElementById('folgaModalTitle').innerText = 'Adicionar folga'; document.getElementById('folgaFuncionario').value = 'Ana Paula'; document.getElementById('folgaData').value = ''; document.getElementById('folgaObservacoes').value = ''; folgaModalContext.index = null; document.getElementById('folgaModal').style.display = 'flex'; }
+function openAddFolgaModal() { document.getElementById('folgaModalTitle').innerText = 'Adicionar folga'; document.getElementById('folgaFuncionario').value = 'Eddie'; document.getElementById('folgaData').value = ''; document.getElementById('folgaObservacoes').value = ''; folgaModalContext.index = null; document.getElementById('folgaModal').style.display = 'flex'; }
 function editFolga(index) { let item = folgasData[index]; document.getElementById('folgaModalTitle').innerText = 'Editar folga'; document.getElementById('folgaFuncionario').value = item.funcionario; document.getElementById('folgaData').value = item.data; document.getElementById('folgaObservacoes').value = item.observacoes || ''; folgaModalContext.index = index; document.getElementById('folgaModal').style.display = 'flex'; }
 function deleteFolga(index) { if(!confirm('Remover?')) return; folgasData.splice(index,1); salvarDados(); renderFolgas(); }
 function marcarConcluida(index) { let item = folgasData[index]; if(!item.observacoes?.startsWith('✅')) item.observacoes = '✅ ' + (item.observacoes||''); salvarDados(); renderFolgas(); }
@@ -675,3 +684,4 @@ carregarDados();
 </script>
 </body>
 </html>
+```
