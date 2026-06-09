@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Rodízio de Limpeza · Lembretes · Afazeres</title>
+    <title>Tabelas C7</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f4f4; color: #333; }
@@ -229,7 +229,7 @@
             color: #777;
         }
 
-        /* ========== NOVOS ESTILOS PARA LEMBRETES E AFAZERES ========== */
+        /* Estilos para cards de lembretes e afazeres */
         .cards-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -272,7 +272,7 @@
             gap: 6px;
         }
         .card-actions .btn-icon {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255,255,255,0.3);
             border: none;
             color: inherit;
             font-size: 1.2rem;
@@ -285,9 +285,7 @@
             padding: 16px 18px;
             background: #fafafa;
         }
-        .item-list {
-            list-style: none;
-        }
+        .item-list { list-style: none; }
         .item-list li {
             padding: 8px 0;
             border-bottom: 1px dashed #ddd;
@@ -301,27 +299,16 @@
             color: #f57c00;
             min-width: 24px;
         }
-        .item-text {
-            flex: 1;
-            word-break: break-word;
-        }
-        /* Checkbox para afazeres */
+        .item-text { flex: 1; word-break: break-word; }
         .task-checkbox {
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             margin-right: 10px;
             cursor: pointer;
             accent-color: #f57c00;
         }
-        .task-text {
-            flex: 1;
-        }
-        .task-text.completed {
-            text-decoration: line-through;
-            color: #888;
-        }
+        .task-text { flex: 1; }
+        .task-text.completed { text-decoration: line-through; color: #888; }
 
-        /* Cores dos cabeçalhos dos lembretes */
         .card-header.cotidianos { background-color: #ff9800; color: white; }
         .card-header.atencao { background-color: #ffc107; color: #333; }
         .card-header.afazer { background-color: #f44336; color: white; }
@@ -339,7 +326,6 @@
             width: auto;
         }
 
-        /* Responsividade extra */
         @media (max-width: 600px) {
             .container { padding: 10px; }
             .header { flex-direction: column; align-items: stretch; text-align: center; }
@@ -354,7 +340,6 @@
             .cards-container { grid-template-columns: 1fr; }
             .card-title { font-size: 1.2rem; }
         }
-
         @media (max-width: 480px) {
             table { min-width: 100%; }
             td, th { white-space: nowrap; }
@@ -397,14 +382,13 @@
         <!-- Painel principal -->
         <div id="mainPanel" style="display: none;">
             <div class="header">
-                <div class="logo" id="logoPlaceholder">🧹 Limpeza & Almoço 🍽️</div>
+                <div class="logo">🧹 Limpeza & Almoço 🍽️</div>
                 <div class="user-info">
                     <span id="userDisplay"></span>
                     <button class="btn" onclick="logout()">Sair</button>
                 </div>
             </div>
 
-            <!-- Abas -->
             <div class="tabs">
                 <div class="tab active" onclick="showTab('loja')">🧹 Loja</div>
                 <div class="tab" onclick="showTab('banheiro')">🧼 Banheiro</div>
@@ -415,7 +399,7 @@
                 <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄 Feriados</div>
             </div>
 
-            <!-- Painel Loja -->
+            <!-- Painéis (mantidos exatamente como antes) -->
             <div id="lojaPanel" class="panel active">
                 <div id="lojaAdminControls" class="admin-controls" style="display: none;">
                     <button class="btn" onclick="openAddRowModal('loja')">➕ Adicionar</button>
@@ -428,8 +412,6 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Painel Banheiro -->
             <div id="banheiroPanel" class="panel">
                 <div id="banheiroAdminControls" class="admin-controls" style="display: none;">
                     <button class="btn" onclick="openAddRowModal('banheiro')">➕ Adicionar</button>
@@ -442,8 +424,6 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Painel Almoço -->
             <div id="almocoPanel" class="panel">
                 <div id="almocoAdminControls" class="admin-controls" style="display: none;">
                     <button class="btn" onclick="openAddRowModal('almoco')">➕ Adicionar</button>
@@ -457,8 +437,6 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Painel Folgas Terçais -->
             <div id="folgasPanel" class="panel">
                 <div id="folgasAdminControls" class="admin-controls" style="display: none;">
                     <button class="btn" onclick="openAddFolgaModal()">➕ Adicionar folga</button>
@@ -470,8 +448,6 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Painel Lembretes -->
             <div id="lembretesPanel" class="panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                     <h2 style="color: #f57c00;">📌 Lembretes</h2>
@@ -479,16 +455,12 @@
                 </div>
                 <div id="lembretesContainer" class="cards-container"></div>
             </div>
-
-            <!-- Painel Afazeres -->
             <div id="afazeresPanel" class="panel">
                 <div id="afazeresAdminControls" class="admin-controls" style="display: none;">
                     <button class="btn" onclick="openAfazerModal()">➕ Novo card de afazeres</button>
                 </div>
                 <div id="afazeresContainer" class="cards-container"></div>
             </div>
-
-            <!-- Painel Feriados -->
             <div id="feriadosPanel" class="panel">
                 <div class="admin-controls">
                     <h3 style="margin:0; color:#f57c00;">Feriados Nacionais</h3>
@@ -500,10 +472,10 @@
             </div>
         </div>
 
-        <!-- Modal genérico (escalas) -->
+        <!-- Modais (mantidos) -->
         <div id="modal" class="modal">
             <div class="modal-content">
-                <h3 id="modalTitle">Adicionar</h3>
+                <h3 id="modalTitle"></h3>
                 <input type="date" id="modalDate">
                 <div id="modalFields"></div>
                 <div class="modal-buttons">
@@ -512,21 +484,13 @@
                 </div>
             </div>
         </div>
-
-        <!-- Modal folgas -->
         <div id="folgaModal" class="modal">
             <div class="modal-content">
-                <h3 id="folgaModalTitle">Adicionar folga</h3>
+                <h3 id="folgaModalTitle"></h3>
                 <select id="folgaFuncionario">
-                    <option value="Ana Paula">Ana Paula</option>
-                    <option value="Talia">Talia</option>
-                    <option value="Eddie">Eddie</option>
-                    <option value="Henrique">Henrique</option>
-                    <option value="Riquelme">Riquelme</option>
-                    <option value="Higor">Higor</option>
-                    <option value="Zeneilton">Zeneilton</option>
-                    <option value="Johnathan">Johnathan</option>
-                    <option value="David">David</option>
+                    <option value="Ana Paula">Ana Paula</option><option value="Talia">Talia</option><option value="Eddie">Eddie</option>
+                    <option value="Henrique">Henrique</option><option value="Riquelme">Riquelme</option><option value="Higor">Higor</option>
+                    <option value="Zeneilton">Zeneilton</option><option value="Johnathan">Johnathan</option><option value="David">David</option>
                 </select>
                 <input type="date" id="folgaData">
                 <textarea id="folgaObservacoes" placeholder="Observações"></textarea>
@@ -536,11 +500,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- Modal Lembrete -->
         <div id="lembreteModal" class="modal">
             <div class="modal-content">
-                <h3 id="lembreteModalTitle">Novo lembrete</h3>
+                <h3 id="lembreteModalTitle"></h3>
                 <input type="text" id="lembreteTitulo" placeholder="Título do lembrete" maxlength="40">
                 <select id="lembreteClassificacao">
                     <option value="cotidianos">🟠 Cotidiano (laranja)</option>
@@ -549,21 +511,19 @@
                     <option value="pedidos">🔵 Pedidos de produtos (azul)</option>
                 </select>
                 <label style="display:block; margin-top:10px;">Itens (um por linha):</label>
-                <textarea id="lembreteItens" rows="5" placeholder="Ex: Comprar pano de chão&#10;Verificar estoque de sabão"></textarea>
+                <textarea id="lembreteItens" rows="5"></textarea>
                 <div class="modal-buttons">
                     <button class="btn" onclick="closeLembreteModal()">Cancelar</button>
                     <button class="btn" onclick="saveLembrete()">Salvar</button>
                 </div>
             </div>
         </div>
-
-        <!-- Modal Afazeres -->
         <div id="afazerModal" class="modal">
             <div class="modal-content">
-                <h3 id="afazerModalTitle">Novo card de afazeres</h3>
+                <h3 id="afazerModalTitle"></h3>
                 <input type="text" id="afazerTitulo" placeholder="Título (ex: Limpeza semanal)">
                 <label style="display:block; margin-top:10px;">Tarefas (uma por linha):</label>
-                <textarea id="afazerTarefas" rows="5" placeholder="Varrer o chão&#10;Limpar vidros"></textarea>
+                <textarea id="afazerTarefas" rows="5"></textarea>
                 <div class="modal-buttons">
                     <button class="btn" onclick="closeAfazerModal()">Cancelar</button>
                     <button class="btn" onclick="saveAfazer()">Salvar</button>
@@ -584,30 +544,16 @@
         const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
         const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
         const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana'];
+        const folgaSequence = ['Eddie', 'Johnathan', 'Higor', 'Ana Paula', 'Talia', 'Riquelme', 'Henrique', 'David'];
 
-        let storeData = [];
-        let bathroomData = [];
-        let lunchData = [];
-        let folgasData = [];
-        let holidays = [];
-        let lembretesData = [];
-        let afazeresData = [];
-
-        let currentUser = null;
-        let isAdmin = false;
-        let isAna = false;
-
-        let modalContext = { type: null, index: null };
-        let folgaModalContext = { index: null };
-        let lembreteEditIndex = null;
-        let afazerEditIndex = null;
+        let storeData = [], bathroomData = [], lunchData = [], folgasData = [], holidays = [], lembretesData = [], afazeresData = [];
+        let currentUser = null, isAdmin = false, isAna = false;
+        let modalContext = { type: null, index: null }, folgaModalContext = { index: null }, lembreteEditIndex = null, afazerEditIndex = null;
 
         // ==================== CARREGAR / SALVAR ====================
         async function carregarDados() {
             try {
-                const resposta = await fetch(JSONBIN_URL, {
-                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                });
+                const resposta = await fetch(JSONBIN_URL, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
                 if (!resposta.ok) throw new Error('Erro ao carregar');
                 const dados = await resposta.json();
                 storeData = dados.record.storeData || [];
@@ -621,52 +567,147 @@
                 console.warn('Usando dados padrão', erro);
                 gerarDadosPadrao();
             }
+            // Se não houver folgas, gera automaticamente 4 ciclos a partir de 28/04/2026
+            if (folgasData.length === 0) {
+                folgasData = gerarFolgas('2026-04-28', 4);
+                salvarDados();
+            }
             renderTables();
             renderLembretes();
             renderAfazeres();
         }
 
         async function salvarDados() {
-            // Agora qualquer usuário logado pode salvar (funcionários criam lembretes)
-            const dados = {
-                storeData,
-                bathroomData,
-                lunchData,
-                folgasData,
-                holidays,
-                lembretesData,
-                afazeresData
-            };
+            const dados = { storeData, bathroomData, lunchData, folgasData, holidays, lembretesData, afazeresData };
             try {
                 const resposta = await fetch(JSONBIN_UPDATE_URL, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
                     body: JSON.stringify(dados)
                 });
                 if (!resposta.ok) throw new Error('Erro ao salvar');
-                console.log('Dados salvos com sucesso');
             } catch (erro) {
                 alert('Erro ao salvar: ' + erro.message);
             }
         }
 
+        // ==================== GERAÇÃO DE FOLGAS ====================
+        function gerarFolgas(startDate, ciclos) {
+            const folgas = [];
+            const start = new Date(startDate + 'T12:00:00');
+            let current = new Date(start);
+            for (let i = 0; i < ciclos * folgaSequence.length; i++) {
+                const funcionario = folgaSequence[i % folgaSequence.length];
+                const data = current.toISOString().split('T')[0];
+                folgas.push({ funcionario, data, observacoes: '' });
+                current.setDate(current.getDate() + 7); // próxima terça
+            }
+            return folgas;
+        }
+
+        // ==================== GERAÇÃO DE ESCALAS (LOJA RESPEITA FOLGAS) ====================
+        function gerarStoreSchedule(start, dias, folgas) {
+            const folgaPorData = new Map(folgas.map(f => [f.data, f.funcionario]));
+            const schedule = [];
+            let cur = new Date(start + 'T12:00:00');
+            const end = new Date(cur);
+            end.setDate(end.getDate() + dias);
+            let idx = storeRotation.indexOf('Ana Paula'); // começa com Ana Paula? Ajuste: no original começava com Ana Paula em 18/02, mas aqui vamos usar a rotação normal.
+
+            while (cur <= end) {
+                const ds = cur.toISOString().split('T')[0];
+                if (!isSunday(ds) && !isHoliday(ds)) {
+                    let pessoa;
+                    if (cur.getDay() === 6) {
+                        pessoa = 'Riquelme';
+                    } else {
+                        pessoa = storeRotation[idx];
+                    }
+
+                    // Verifica se a pessoa escolhida está de folga
+                    if (folgaPorData.get(ds) === pessoa) {
+                        // Procura o próximo da rotação que não esteja de folga (circular)
+                        let found = false;
+                        for (let i = 1; i < storeRotation.length; i++) {
+                            const candidato = storeRotation[(idx + i) % storeRotation.length];
+                            if (folgaPorData.get(ds) !== candidato) {
+                                pessoa = candidato;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            // Se todos da rotação estiverem de folga (improvável), mantém o original
+                            pessoa = storeRotation[idx];
+                        }
+                        // Não avança idx porque a pessoa original não trabalhou
+                    } else {
+                        // Avança a rotação apenas se for dia de semana (não sábado) e a pessoa trabalhou
+                        if (cur.getDay() !== 6) {
+                            idx = (idx + 1) % storeRotation.length;
+                        }
+                    }
+                    schedule.push({ date: ds, person: pessoa });
+                }
+                cur.setDate(cur.getDate() + 1);
+            }
+            return schedule;
+        }
+
+        function gerarBathroomSchedule(start, weeks) {
+            let cur = new Date(start + 'T12:00:00'), end = new Date(cur);
+            end.setDate(end.getDate() + weeks * 7);
+            let idx = bathroomRotation.indexOf('Riquelme'), schedule = [];
+            while (cur <= end) {
+                if (cur.getDay() === 3) {
+                    let ds = cur.toISOString().split('T')[0];
+                    schedule.push({ date: ds, person: bathroomRotation[idx] });
+                    idx = (idx + 1) % bathroomRotation.length;
+                }
+                cur.setDate(cur.getDate() + 1);
+            }
+            return schedule;
+        }
+
+        function gerarLunchSchedule(start) {
+            let cur = new Date(start + 'T12:00:00'), end = new Date(cur);
+            end.setMonth(end.getMonth() + 6);
+            let ref = new Date('2026-02-21T12:00:00');
+            let diff = Math.round((cur - ref) / (7 * 24 * 60 * 60 * 1000));
+            if (diff < 0) diff = 0;
+            let base = ['Compras', 'Louças', 'Descanso', 'Salada'];
+            let funcs = [...base];
+            for (let i = 0; i < diff; i++) funcs = [funcs[3], funcs[0], funcs[1], funcs[2]];
+            let schedule = [], tmp = new Date(cur);
+            while (tmp <= end) {
+                let ds = tmp.toISOString().split('T')[0];
+                let row = {
+                    date: ds,
+                    compras: lunchPeople[funcs.indexOf('Compras')],
+                    loucas: lunchPeople[funcs.indexOf('Louças')],
+                    salada: lunchPeople[funcs.indexOf('Salada')],
+                    descanso: lunchPeople[funcs.indexOf('Descanso')]
+                };
+                if (isLastDayOfMonth(ds) || isLastSaturdayOfMonth(ds)) {
+                    if (row.compras === 'Ana') { row.compras = row.descanso; row.descanso = 'Fechamento caixa'; }
+                    else if (row.loucas === 'Ana') { row.loucas = row.descanso; row.descanso = 'Fechamento caixa'; }
+                    else if (row.salada === 'Ana') { row.salada = row.descanso; row.descanso = 'Fechamento caixa'; }
+                    else if (row.descanso === 'Ana') { row.descanso = 'Fechamento caixa'; }
+                }
+                schedule.push(row);
+                tmp.setDate(tmp.getDate() + 7);
+                funcs = [funcs[3], funcs[0], funcs[1], funcs[2]];
+            }
+            return schedule;
+        }
+
         function gerarDadosPadrao() {
-            storeData = gerarStoreSchedule('2026-02-18', 90);
-            bathroomData = gerarBathroomSchedule('2026-02-18', 26);
-            lunchData = gerarLunchSchedule('2026-02-21');
-            folgasData = [
-                { funcionario: 'Eddie', data: '2026-01-06', observacoes: '' },
-                { funcionario: 'Johnathan', data: '2026-01-13', observacoes: '' },
-                { funcionario: 'Higor', data: '2026-01-20', observacoes: '' },
-                { funcionario: 'Ana Paula', data: '2026-01-27', observacoes: '' },
-                { funcionario: 'Talia', data: '2026-02-03', observacoes: '' },
-                { funcionario: 'Riquelme', data: '2026-02-10', observacoes: '' },
-                { funcionario: 'Henrique', data: '2026-02-17', observacoes: '' },
-                { funcionario: 'David', data: '2026-02-24', observacoes: '' }
-            ];
+            // Gera folgas com 4 ciclos a partir de 28/04/2026
+            folgasData = gerarFolgas('2026-04-28', 4);
+            // Gera loja já respeitando as folgas
+            storeData = gerarStoreSchedule('2026-04-28', 90, folgasData);
+            bathroomData = gerarBathroomSchedule('2026-04-28', 26);
+            lunchData = gerarLunchSchedule('2026-04-25'); // sábado mais próximo
             holidays = [
                 '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
                 '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
@@ -681,121 +722,80 @@
             ];
         }
 
-        // ==================== FUNÇÕES DE GERAÇÃO ====================
+        // Helpers
         function isSunday(d) { return new Date(d + 'T12:00:00').getDay() === 0; }
         function isHoliday(d) { return holidays.includes(d); }
-        function isLastDayOfMonth(d) { let dt = new Date(d+'T12:00:00'); return dt.getDate() === new Date(dt.getFullYear(), dt.getMonth()+1, 0).getDate(); }
-        function isLastSaturdayOfMonth(d) { let dt = new Date(d+'T12:00:00'); if(dt.getDay()!==6) return false; let n = new Date(dt); n.setDate(dt.getDate()+1); return n.getMonth()!==dt.getMonth(); }
-
-        function gerarStoreSchedule(start, dias) {
-            let cur = new Date(start+'T12:00:00'), end = new Date(cur); end.setDate(end.getDate()+dias);
-            let idx = storeRotation.indexOf('Ana Paula'), schedule = [];
-            while(cur <= end) {
-                let ds = cur.toISOString().split('T')[0];
-                if(!isSunday(ds) && !isHoliday(ds)) {
-                    if(cur.getDay()===6) schedule.push({date:ds, person:'Riquelme'});
-                    else { schedule.push({date:ds, person:storeRotation[idx]}); idx = (idx+1)%storeRotation.length; }
-                }
-                cur.setDate(cur.getDate()+1);
-            }
-            return schedule;
+        function isLastDayOfMonth(d) {
+            let dt = new Date(d + 'T12:00:00');
+            return dt.getDate() === new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate();
         }
-        function gerarBathroomSchedule(start, weeks) {
-            let cur = new Date(start+'T12:00:00'), end = new Date(cur); end.setDate(end.getDate()+weeks*7);
-            let idx = bathroomRotation.indexOf('Riquelme'), schedule = [];
-            while(cur <= end) {
-                if(cur.getDay()===3) {
-                    let ds = cur.toISOString().split('T')[0];
-                    schedule.push({date:ds, person:bathroomRotation[idx]});
-                    idx = (idx+1)%bathroomRotation.length;
-                }
-                cur.setDate(cur.getDate()+1);
-            }
-            return schedule;
-        }
-        function gerarLunchSchedule(start) {
-            let cur = new Date(start+'T12:00:00'), end = new Date(cur); end.setMonth(end.getMonth()+6);
-            let ref = new Date('2026-02-21T12:00:00');
-            let diff = Math.round((cur - ref) / (7*24*60*60*1000)); if(diff<0) diff=0;
-            let base = ['Compras','Louças','Descanso','Salada'];
-            let funcs = [...base];
-            for(let i=0;i<diff;i++) funcs = [funcs[3], funcs[0], funcs[1], funcs[2]];
-            let schedule = [], tmp = new Date(cur);
-            while(tmp <= end) {
-                let ds = tmp.toISOString().split('T')[0];
-                let row = {
-                    date: ds,
-                    compras: lunchPeople[funcs.indexOf('Compras')],
-                    loucas: lunchPeople[funcs.indexOf('Louças')],
-                    salada: lunchPeople[funcs.indexOf('Salada')],
-                    descanso: lunchPeople[funcs.indexOf('Descanso')]
-                };
-                if(isLastDayOfMonth(ds)||isLastSaturdayOfMonth(ds)) {
-                    if(row.compras==='Ana') row.compras = row.descanso, row.descanso='Fechamento caixa';
-                    else if(row.loucas==='Ana') row.loucas = row.descanso, row.descanso='Fechamento caixa';
-                    else if(row.salada==='Ana') row.salada = row.descanso, row.descanso='Fechamento caixa';
-                    else if(row.descanso==='Ana') row.descanso = 'Fechamento caixa';
-                }
-                schedule.push(row);
-                tmp.setDate(tmp.getDate()+7);
-                funcs = [funcs[3], funcs[0], funcs[1], funcs[2]];
-            }
-            return schedule;
+        function isLastSaturdayOfMonth(d) {
+            let dt = new Date(d + 'T12:00:00');
+            if (dt.getDay() !== 6) return false;
+            let n = new Date(dt);
+            n.setDate(dt.getDate() + 1);
+            return n.getMonth() !== dt.getMonth();
         }
 
         // ==================== RENDERIZAÇÃO ====================
         function renderTables() { renderLoja(); renderBanheiro(); renderAlmoco(); renderFolgas(); renderHolidays(); }
-        function formatDateWithWeekday(d) { let dt = new Date(d+'T12:00:00'); let wd = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']; let [y,m,dia] = d.split('-'); return `${dia}/${m}/${y} - ${wd[dt.getDay()]}`; }
-
+        function formatDateWithWeekday(d) {
+            let dt = new Date(d + 'T12:00:00');
+            let wd = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            let [y, m, dia] = d.split('-');
+            return `${dia}/${m}/${y} - ${wd[dt.getDay()]}`;
+        }
         function renderLoja() {
             let tbody = document.querySelector('#lojaTable tbody'); tbody.innerHTML = '';
-            storeData.forEach((item,idx) => {
+            storeData.forEach((item, idx) => {
                 let tr = document.createElement('tr');
                 tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.person}</td>`;
-                if(isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('loja',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('loja',${idx})">🗑️</button></td>`;
+                if (isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('loja',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('loja',${idx})">🗑️</button></td>`;
                 tbody.appendChild(tr);
             });
-            document.getElementById('lojaActionsHeader').style.display = isAdmin ? 'table-cell':'none';
+            document.getElementById('lojaActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
         }
         function renderBanheiro() {
             let tbody = document.querySelector('#banheiroTable tbody'); tbody.innerHTML = '';
-            bathroomData.forEach((item,idx) => {
+            bathroomData.forEach((item, idx) => {
                 let tr = document.createElement('tr');
                 tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.person}</td>`;
-                if(isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('banheiro',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('banheiro',${idx})">🗑️</button></td>`;
+                if (isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('banheiro',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('banheiro',${idx})">🗑️</button></td>`;
                 tbody.appendChild(tr);
             });
-            document.getElementById('banheiroActionsHeader').style.display = isAdmin ? 'table-cell':'none';
+            document.getElementById('banheiroActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
         }
         function renderAlmoco() {
             let tbody = document.querySelector('#almocoTable tbody'); tbody.innerHTML = '';
-            lunchData.forEach((item,idx) => {
+            lunchData.forEach((item, idx) => {
                 let tr = document.createElement('tr');
                 tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.compras}</td><td>${item.loucas}</td><td>${item.salada}</td><td>${item.descanso}</td>`;
-                if(isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('almoco',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('almoco',${idx})">🗑️</button></td>`;
+                if (isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('almoco',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('almoco',${idx})">🗑️</button></td>`;
                 tbody.appendChild(tr);
             });
-            document.getElementById('almocoActionsHeader').style.display = isAdmin ? 'table-cell':'none';
+            document.getElementById('almocoActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
         }
         function renderFolgas() {
             let tbody = document.querySelector('#folgasTable tbody'); tbody.innerHTML = '';
-            folgasData.forEach((item,idx) => {
+            folgasData.forEach((item, idx) => {
                 let tr = document.createElement('tr');
                 let dataFormatada = item.data ? formatDateWithWeekday(item.data).split(' - ')[0] : '';
-                tr.innerHTML = `<td>${item.funcionario}</td><td>${dataFormatada}</td><td>${item.observacoes||''}</td>`;
-                if(isAdmin||isAna) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="marcarConcluida(${idx})">✅</button><button class="btn" onclick="editFolga(${idx})">✏️</button><button class="btn btn-danger" onclick="deleteFolga(${idx})">🗑️</button></td>`;
+                tr.innerHTML = `<td>${item.funcionario}</td><td>${dataFormatada}</td><td>${item.observacoes || ''}</td>`;
+                if (isAdmin || isAna) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="marcarConcluida(${idx})">✅</button><button class="btn" onclick="editFolga(${idx})">✏️</button><button class="btn btn-danger" onclick="deleteFolga(${idx})">🗑️</button></td>`;
                 tbody.appendChild(tr);
             });
-            document.getElementById('folgasActionsHeader').style.display = (isAdmin||isAna) ? 'table-cell':'none';
+            document.getElementById('folgasActionsHeader').style.display = (isAdmin || isAna) ? 'table-cell' : 'none';
         }
         function renderHolidays() {
             let cont = document.getElementById('holidayListContainer'); cont.innerHTML = '';
-            holidays.sort().forEach(d => { let s = document.createElement('span'); s.className='holiday-item'; s.innerHTML = `${formatDateWithWeekday(d)} <button onclick="removeHoliday('${d}')">✕</button>`; cont.appendChild(s); });
+            holidays.sort().forEach(d => {
+                let s = document.createElement('span'); s.className = 'holiday-item';
+                s.innerHTML = `${formatDateWithWeekday(d)} <button onclick="removeHoliday('${d}')">✕</button>`;
+                cont.appendChild(s);
+            });
         }
-
         function renderLembretes() {
-            let container = document.getElementById('lembretesContainer');
-            container.innerHTML = '';
+            let container = document.getElementById('lembretesContainer'); container.innerHTML = '';
             lembretesData.forEach((lembrete, index) => {
                 const podeEditar = isAdmin || (currentUser && currentUser.nome === lembrete.criador);
                 const card = document.createElement('div'); card.className = 'card';
@@ -821,10 +821,8 @@
                 container.appendChild(card);
             });
         }
-
         function renderAfazeres() {
-            let container = document.getElementById('afazeresContainer');
-            container.innerHTML = '';
+            let container = document.getElementById('afazeresContainer'); container.innerHTML = '';
             afazeresData.forEach((afazer, cardIdx) => {
                 const card = document.createElement('div'); card.className = 'card';
                 card.innerHTML = `
@@ -851,134 +849,126 @@
         // ==================== LOGIN ====================
         window.loginEmployee = function() {
             let name = document.getElementById('employeeSelect').value;
-            if(!name) { alert('Selecione um nome'); return; }
-            currentUser = { nome: name, tipo: 'funcionario' };
-            isAdmin = false; isAna = false;
+            if (!name) { alert('Selecione um nome'); return; }
+            currentUser = { nome: name, tipo: 'funcionario' }; isAdmin = false; isAna = false;
             enterApp();
         };
         window.loginAdmin = function() {
-            let name = document.getElementById('adminName').value;
-            let pwd = document.getElementById('adminPassword').value;
-            if(name==='David' && pwd==='C7123') {
-                currentUser = { nome: 'David', tipo: 'admin' };
-                isAdmin = true; isAna = false;
+            let name = document.getElementById('adminName').value, pwd = document.getElementById('adminPassword').value;
+            if (name === 'David' && pwd === 'C7123') {
+                currentUser = { nome: 'David', tipo: 'admin' }; isAdmin = true; isAna = false;
                 enterApp();
             } else alert('Credenciais inválidas');
         };
         window.loginAna = function() {
             let pwd = document.getElementById('anaPassword').value;
-            if(pwd==='0411') {
-                currentUser = { nome: 'Ana Paula', tipo: 'ana' };
-                isAdmin = false; isAna = true;
+            if (pwd === '0411') {
+                currentUser = { nome: 'Ana Paula', tipo: 'ana' }; isAdmin = false; isAna = true;
                 enterApp();
             } else alert('Senha incorreta');
         };
         function enterApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainPanel').style.display = 'block';
-            document.getElementById('userDisplay').innerText = `Olá, ${currentUser.nome} (${currentUser.tipo==='admin'?'Admin':currentUser.tipo==='ana'?'Folgas':'Funcionário'})`;
+            document.getElementById('userDisplay').innerText = `Olá, ${currentUser.nome} (${currentUser.tipo === 'admin' ? 'Admin' : currentUser.tipo === 'ana' ? 'Folgas' : 'Funcionário'})`;
             document.querySelectorAll('.admin-controls').forEach(el => {
-                if(el.id==='folgasAdminControls') el.style.display = (isAdmin||isAna) ? 'flex':'none';
-                else if(el.id==='afazeresAdminControls') el.style.display = isAdmin ? 'flex':'none';
-                else el.style.display = isAdmin ? 'flex':'none';
+                if (el.id === 'folgasAdminControls') el.style.display = (isAdmin || isAna) ? 'flex' : 'none';
+                else if (el.id === 'afazeresAdminControls') el.style.display = isAdmin ? 'flex' : 'none';
+                else el.style.display = isAdmin ? 'flex' : 'none';
             });
-            document.getElementById('holidayTab').style.display = isAdmin ? 'block':'none';
-            if(!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
+            document.getElementById('holidayTab').style.display = isAdmin ? 'block' : 'none';
+            if (!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
             renderTables(); renderLembretes(); renderAfazeres();
         }
         window.logout = function() {
-            currentUser=null; isAdmin=false; isAna=false;
-            document.getElementById('loginScreen').style.display='flex';
-            document.getElementById('mainPanel').style.display='none';
-            document.getElementById('employeeSelect').value='';
-            document.getElementById('adminPassword').value='';
-            document.getElementById('anaPassword').value='';
+            currentUser = null; isAdmin = false; isAna = false;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainPanel').style.display = 'none';
+            document.getElementById('employeeSelect').value = '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('anaPassword').value = '';
         };
         window.showTab = function(tab) {
-            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
-            document.getElementById(tab+'Panel').classList.add('active');
+            document.getElementById(tab + 'Panel').classList.add('active');
         };
 
-        // ==================== CRUD ESCALAS (completo) ====================
+        // ==================== CRUD ESCALAS ====================
         window.openAddRowModal = function(type) {
-            document.getElementById('modalTitle').innerText = 'Adicionar - ' + (type==='loja'?'Loja':type==='banheiro'?'Banheiro':'Almoço');
+            document.getElementById('modalTitle').innerText = 'Adicionar - ' + (type === 'loja' ? 'Loja' : type === 'banheiro' ? 'Banheiro' : 'Almoço');
             document.getElementById('modalDate').value = '';
             let fields = document.getElementById('modalFields');
-            if(type==='almoco') {
+            if (type === 'almoco') {
                 fields.innerHTML = `
-                    <select id="modalCompras">${funcionarios.map(f=>`<option>${f}</option>`).join('')}</select>
-                    <select id="modalLoucas">${funcionarios.map(f=>`<option>${f}</option>`).join('')}</select>
-                    <select id="modalSalada">${funcionarios.map(f=>`<option>${f}</option>`).join('')}</select>
-                    <select id="modalDescanso">${funcionarios.map(f=>`<option>${f}</option>`).join('')}</select>
+                    <select id="modalCompras">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalLoucas">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalSalada">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
+                    <select id="modalDescanso">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
                 `;
             } else {
-                fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f=>`<option>${f}</option>`).join('')}</select>`;
+                fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>`;
             }
             modalContext = { type, index: null };
             document.getElementById('modal').style.display = 'flex';
         };
         window.editRow = function(type, index) {
             let item;
-            if(type==='loja') item = storeData[index];
-            else if(type==='banheiro') item = bathroomData[index];
+            if (type === 'loja') item = storeData[index];
+            else if (type === 'banheiro') item = bathroomData[index];
             else item = lunchData[index];
-            
-            document.getElementById('modalTitle').innerText = 'Editar - ' + (type==='loja'?'Loja':type==='banheiro'?'Banheiro':'Almoço');
+            document.getElementById('modalTitle').innerText = 'Editar - ' + (type === 'loja' ? 'Loja' : type === 'banheiro' ? 'Banheiro' : 'Almoço');
             document.getElementById('modalDate').value = item.date;
             let fields = document.getElementById('modalFields');
-            if(type==='almoco') {
+            if (type === 'almoco') {
                 fields.innerHTML = `
-                    <select id="modalCompras">${funcionarios.map(f=>`<option ${f===item.compras?'selected':''}>${f}</option>`).join('')}</select>
-                    <select id="modalLoucas">${funcionarios.map(f=>`<option ${f===item.loucas?'selected':''}>${f}</option>`).join('')}</select>
-                    <select id="modalSalada">${funcionarios.map(f=>`<option ${f===item.salada?'selected':''}>${f}</option>`).join('')}</select>
-                    <select id="modalDescanso">${funcionarios.map(f=>`<option ${f===item.descanso?'selected':''}>${f}</option>`).join('')}</select>
+                    <select id="modalCompras">${funcionarios.map(f => `<option ${f === item.compras ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                    <select id="modalLoucas">${funcionarios.map(f => `<option ${f === item.loucas ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                    <select id="modalSalada">${funcionarios.map(f => `<option ${f === item.salada ? 'selected' : ''}>${f}</option>`).join('')}</select>
+                    <select id="modalDescanso">${funcionarios.map(f => `<option ${f === item.descanso ? 'selected' : ''}>${f}</option>`).join('')}</select>
                 `;
             } else {
-                fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f=>`<option ${f===item.person?'selected':''}>${f}</option>`).join('')}</select>`;
+                fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option ${f === item.person ? 'selected' : ''}>${f}</option>`).join('')}</select>`;
             }
             modalContext = { type, index };
             document.getElementById('modal').style.display = 'flex';
         };
         window.deleteRow = function(type, index) {
-            if(!confirm('Remover esta linha?')) return;
-            if(type==='loja') storeData.splice(index,1);
-            else if(type==='banheiro') bathroomData.splice(index,1);
-            else lunchData.splice(index,1);
-            salvarDados();
-            renderTables();
+            if (!confirm('Remover esta linha?')) return;
+            if (type === 'loja') storeData.splice(index, 1);
+            else if (type === 'banheiro') bathroomData.splice(index, 1);
+            else lunchData.splice(index, 1);
+            salvarDados(); renderTables();
         };
-        window.closeModal = ()=> document.getElementById('modal').style.display='none';
+        window.closeModal = () => document.getElementById('modal').style.display = 'none';
         window.saveModal = function() {
             let date = document.getElementById('modalDate').value;
-            if(!date) { alert('Data obrigatória'); return; }
+            if (!date) { alert('Data obrigatória'); return; }
             let { type, index } = modalContext;
-            if(type==='almoco') {
+            if (type === 'almoco') {
                 let compras = document.getElementById('modalCompras').value;
                 let loucas = document.getElementById('modalLoucas').value;
                 let salada = document.getElementById('modalSalada').value;
                 let descanso = document.getElementById('modalDescanso').value;
                 let newRow = { date, compras, loucas, salada, descanso };
-                if(index!==null) lunchData[index] = newRow;
+                if (index !== null) lunchData[index] = newRow;
                 else lunchData.push(newRow);
             } else {
                 let person = document.getElementById('modalPerson').value;
                 let newRow = { date, person };
-                if(index!==null) {
-                    if(type==='loja') storeData[index] = newRow;
+                if (index !== null) {
+                    if (type === 'loja') storeData[index] = newRow;
                     else bathroomData[index] = newRow;
                 } else {
-                    if(type==='loja') storeData.push(newRow);
+                    if (type === 'loja') storeData.push(newRow);
                     else bathroomData.push(newRow);
                 }
             }
-            if(type==='loja') storeData.sort((a,b)=>a.date.localeCompare(b.date));
-            if(type==='banheiro') bathroomData.sort((a,b)=>a.date.localeCompare(b.date));
-            if(type==='almoco') lunchData.sort((a,b)=>a.date.localeCompare(b.date));
-            salvarDados();
-            renderTables();
-            closeModal();
+            if (type === 'loja') storeData.sort((a, b) => a.date.localeCompare(b.date));
+            if (type === 'banheiro') bathroomData.sort((a, b) => a.date.localeCompare(b.date));
+            if (type === 'almoco') lunchData.sort((a, b) => a.date.localeCompare(b.date));
+            salvarDados(); renderTables(); closeModal();
         };
 
         // ==================== CRUD FOLGAS ====================
@@ -1000,33 +990,29 @@
             document.getElementById('folgaModal').style.display = 'flex';
         };
         window.deleteFolga = function(index) {
-            if(!confirm('Remover esta folga?')) return;
-            folgasData.splice(index,1);
-            salvarDados();
-            renderFolgas();
+            if (!confirm('Remover esta folga?')) return;
+            folgasData.splice(index, 1);
+            salvarDados(); renderFolgas();
         };
         window.marcarConcluida = function(index) {
             let item = folgasData[index];
-            if(!item.observacoes?.startsWith('✅')) item.observacoes = '✅ ' + (item.observacoes||'');
-            salvarDados();
-            renderFolgas();
+            if (!item.observacoes?.startsWith('✅')) item.observacoes = '✅ ' + (item.observacoes || '');
+            salvarDados(); renderFolgas();
         };
-        window.closeFolgaModal = ()=> document.getElementById('folgaModal').style.display='none';
+        window.closeFolgaModal = () => document.getElementById('folgaModal').style.display = 'none';
         window.saveFolgaModal = function() {
             let funcionario = document.getElementById('folgaFuncionario').value;
             let data = document.getElementById('folgaData').value;
             let observacoes = document.getElementById('folgaObservacoes').value;
-            if(!funcionario || !data) { alert('Funcionário e data obrigatórios'); return; }
+            if (!funcionario || !data) { alert('Funcionário e data obrigatórios'); return; }
             let nova = { funcionario, data, observacoes };
-            if(folgaModalContext.index!==null) folgasData[folgaModalContext.index] = nova;
+            if (folgaModalContext.index !== null) folgasData[folgaModalContext.index] = nova;
             else folgasData.push(nova);
-            folgasData.sort((a,b)=>a.data.localeCompare(b.data));
-            salvarDados();
-            renderFolgas();
-            closeFolgaModal();
+            folgasData.sort((a, b) => a.data.localeCompare(b.data));
+            salvarDados(); renderFolgas(); closeFolgaModal();
         };
 
-        // ==================== LEMBRETES ====================
+        // ==================== LEMBRETES E AFAZERES ====================
         window.openLembreteModal = function() {
             document.getElementById('lembreteModalTitle').innerText = 'Novo lembrete';
             document.getElementById('lembreteTitulo').value = '';
@@ -1045,26 +1031,24 @@
             document.getElementById('lembreteModal').style.display = 'flex';
         };
         window.deleteLembrete = function(index) {
-            if(!confirm('Apagar este lembrete?')) return;
-            lembretesData.splice(index,1);
+            if (!confirm('Apagar este lembrete?')) return;
+            lembretesData.splice(index, 1);
             salvarDados(); renderLembretes();
         };
-        window.closeLembreteModal = ()=> document.getElementById('lembreteModal').style.display='none';
+        window.closeLembreteModal = () => document.getElementById('lembreteModal').style.display = 'none';
         window.saveLembrete = function() {
             const titulo = document.getElementById('lembreteTitulo').value.trim();
             const classificacao = document.getElementById('lembreteClassificacao').value;
             const itensTexto = document.getElementById('lembreteItens').value.trim();
-            if(!titulo) { alert('Título obrigatório'); return; }
+            if (!titulo) { alert('Título obrigatório'); return; }
             const itens = itensTexto.split('\n').filter(l => l.trim() !== '');
-            if(itens.length === 0) { alert('Adicione pelo menos um item'); return; }
+            if (itens.length === 0) { alert('Adicione pelo menos um item'); return; }
             const criador = currentUser.nome;
             const novo = { titulo, classificacao, criador, itens };
-            if(lembreteEditIndex !== null) lembretesData[lembreteEditIndex] = novo;
+            if (lembreteEditIndex !== null) lembretesData[lembreteEditIndex] = novo;
             else lembretesData.push(novo);
             salvarDados(); renderLembretes(); closeLembreteModal();
         };
-
-        // ==================== AFAZERES ====================
         window.openAfazerModal = function() {
             document.getElementById('afazerModalTitle').innerText = 'Novo card de afazeres';
             document.getElementById('afazerTitulo').value = '';
@@ -1081,28 +1065,28 @@
             document.getElementById('afazerModal').style.display = 'flex';
         };
         window.deleteAfazer = function(index) {
-            if(!confirm('Apagar este card?')) return;
-            afazeresData.splice(index,1);
+            if (!confirm('Apagar este card?')) return;
+            afazeresData.splice(index, 1);
             salvarDados(); renderAfazeres();
         };
-        window.closeAfazerModal = ()=> document.getElementById('afazerModal').style.display='none';
+        window.closeAfazerModal = () => document.getElementById('afazerModal').style.display = 'none';
         window.saveAfazer = function() {
             const titulo = document.getElementById('afazerTitulo').value.trim();
             const tarefasTexto = document.getElementById('afazerTarefas').value.trim();
-            if(!titulo) { alert('Título obrigatório'); return; }
+            if (!titulo) { alert('Título obrigatório'); return; }
             const linhas = tarefasTexto.split('\n').filter(l => l.trim() !== '');
-            if(linhas.length === 0) { alert('Adicione pelo menos uma tarefa'); return; }
+            if (linhas.length === 0) { alert('Adicione pelo menos uma tarefa'); return; }
             const tarefas = linhas.map(texto => ({ texto: texto.trim(), feito: false }));
             const novo = { titulo, tarefas };
-            if(afazerEditIndex !== null) {
+            if (afazerEditIndex !== null) {
                 const antigo = afazeresData[afazerEditIndex];
-                novo.tarefas = tarefas.map((t,i) => ({ texto: t.texto, feito: (antigo.tarefas[i] && antigo.tarefas[i].feito) || false }));
+                novo.tarefas = tarefas.map((t, i) => ({ texto: t.texto, feito: (antigo.tarefas[i] && antigo.tarefas[i].feito) || false }));
                 afazeresData[afazerEditIndex] = novo;
             } else afazeresData.push(novo);
             salvarDados(); renderAfazeres(); closeAfazerModal();
         };
         window.toggleAfazerTarefa = function(cardIdx, tarefaIdx) {
-            if(!isAdmin) return;
+            if (!isAdmin) return;
             afazeresData[cardIdx].tarefas[tarefaIdx].feito = !afazeresData[cardIdx].tarefas[tarefaIdx].feito;
             salvarDados(); renderAfazeres();
         };
@@ -1110,29 +1094,29 @@
         // ==================== FERIADOS / REGENERAR ====================
         window.addHoliday = function() {
             let d = document.getElementById('newHolidayDate').value;
-            if(d && !holidays.includes(d)) holidays.push(d);
+            if (d && !holidays.includes(d)) holidays.push(d);
             holidays.sort();
             salvarDados(); renderHolidays();
-            document.getElementById('newHolidayDate').value='';
+            document.getElementById('newHolidayDate').value = '';
         };
         window.removeHoliday = function(d) {
-            holidays = holidays.filter(h => h!==d);
+            holidays = holidays.filter(h => h !== d);
             salvarDados(); renderHolidays();
         };
         window.regenerateStore = function() {
-            if(!confirm('Recriar escala da loja?')) return;
+            if (!confirm('Recriar escala da loja a partir de hoje, respeitando folgas?')) return;
             let hoje = new Date().toISOString().split('T')[0];
-            storeData = gerarStoreSchedule(hoje,90);
+            storeData = gerarStoreSchedule(hoje, 90, folgasData);
             salvarDados(); renderTables();
         };
         window.regenerateBathroom = function() {
-            if(!confirm('Recriar escala do banheiro?')) return;
+            if (!confirm('Recriar escala do banheiro?')) return;
             let hoje = new Date().toISOString().split('T')[0];
-            bathroomData = gerarBathroomSchedule(hoje,26);
+            bathroomData = gerarBathroomSchedule(hoje, 26);
             salvarDados(); renderTables();
         };
         window.regenerateLunch = function() {
-            if(!confirm('Recriar escala do almoço?')) return;
+            if (!confirm('Recriar escala do almoço?')) return;
             let hoje = new Date();
             let diaSemana = hoje.getDay();
             let diff = (6 - diaSemana + 7) % 7 || 7;
@@ -1143,10 +1127,10 @@
             salvarDados(); renderTables();
         };
         window.updateToCurrentDate = function() {
-            if(!confirm('Atualizar todas as escalas para a data atual?')) return;
+            if (!confirm('Atualizar todas as escalas para a data de hoje?')) return;
             let hoje = new Date().toISOString().split('T')[0];
-            storeData = gerarStoreSchedule(hoje,90);
-            bathroomData = gerarBathroomSchedule(hoje,26);
+            storeData = gerarStoreSchedule(hoje, 90, folgasData);
+            bathroomData = gerarBathroomSchedule(hoje, 26);
             let diaSemana = new Date().getDay();
             let diff = (6 - diaSemana + 7) % 7 || 7;
             let primeiroSabado = new Date();
@@ -1156,7 +1140,7 @@
             salvarDados(); renderTables();
         };
 
-        // Inicializar
+        // Inicialização
         carregarDados();
     </script>
 </body>
