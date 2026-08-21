@@ -133,7 +133,7 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            min-width: 600px;
+            min-width: 500px;
         }
         th {
             background-color: #f57c00;
@@ -355,7 +355,6 @@
                 <h2>Funcionário</h2>
                 <select id="employeeSelect">
                     <option value="">Selecione</option>
-                    <option value="Ana Paula">Ana Paula</option>
                     <option value="Talia">Talia</option>
                     <option value="Eddie">Eddie</option>
                     <option value="Henrique">Henrique</option>
@@ -371,11 +370,6 @@
                 <input type="text" id="adminName" value="David" placeholder="Nome">
                 <input type="password" id="adminPassword" placeholder="Senha">
                 <button onclick="loginAdmin()">Entrar</button>
-            </div>
-            <div class="login-card">
-                <h2>Ana Paula (Folgas)</h2>
-                <input type="password" id="anaPassword" placeholder="Senha">
-                <button onclick="loginAna()">Entrar</button>
             </div>
         </div>
 
@@ -399,7 +393,7 @@
                 <div class="tab" onclick="showTab('feriados')" id="holidayTab" style="display: none;">📄 Feriados</div>
             </div>
 
-            <!-- Painéis (mantidos exatamente como antes) -->
+            <!-- Painéis -->
             <div id="lojaPanel" class="panel active">
                 <div id="lojaAdminControls" class="admin-controls" style="display: none;">
                     <button class="btn" onclick="openAddRowModal('loja')">➕ Adicionar</button>
@@ -432,7 +426,7 @@
                 </div>
                 <div class="table-wrapper">
                     <table id="almocoTable">
-                        <thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th>Descanso</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead>
+                        <thead><tr><th>Data e Dia</th><th>Compras</th><th>Louças</th><th>Salada</th><th id="almocoActionsHeader" style="display: none;">Ações</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -472,7 +466,7 @@
             </div>
         </div>
 
-        <!-- Modais (mantidos) -->
+        <!-- Modais -->
         <div id="modal" class="modal">
             <div class="modal-content">
                 <h3 id="modalTitle"></h3>
@@ -488,9 +482,14 @@
             <div class="modal-content">
                 <h3 id="folgaModalTitle"></h3>
                 <select id="folgaFuncionario">
-                    <option value="Ana Paula">Ana Paula</option><option value="Talia">Talia</option><option value="Eddie">Eddie</option>
-                    <option value="Henrique">Henrique</option><option value="Riquelme">Riquelme</option><option value="Higor">Higor</option>
-                    <option value="Zeneilton">Zeneilton</option><option value="Johnathan">Johnathan</option><option value="David">David</option>
+                    <option value="Talia">Talia</option>
+                    <option value="Eddie">Eddie</option>
+                    <option value="Henrique">Henrique</option>
+                    <option value="Riquelme">Riquelme</option>
+                    <option value="Higor">Higor</option>
+                    <option value="Zeneilton">Zeneilton</option>
+                    <option value="Johnathan">Johnathan</option>
+                    <option value="David">David</option>
                 </select>
                 <input type="date" id="folgaData">
                 <textarea id="folgaObservacoes" placeholder="Observações"></textarea>
@@ -540,14 +539,14 @@
         const JSONBIN_UPDATE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
 
         // ==================== DADOS ====================
-        const funcionarios = ['Ana Paula', 'Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan', 'David'];
-        const storeRotation = ['Eddie', 'Talia', 'Ana Paula'];
-        const bathroomRotation = ['Eddie', 'Ana Paula', 'Talia', 'Riquelme'];
-        const lunchPeople = ['Talia', 'Eddie', 'Riquelme', 'Ana'];
-        const folgaSequence = ['Eddie', 'Johnathan', 'Higor', 'Ana Paula', 'Talia', 'Riquelme', 'Henrique', 'David'];
+        const funcionarios = ['Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan', 'David'];
+        const storeRotation = ['Eddie', 'Talia'];
+        const bathroomRotation = ['Eddie', 'Talia', 'Riquelme'];
+        const lunchPeople = ['Talia', 'Eddie', 'Riquelme']; // apenas 3
+        const folgaSequence = ['Eddie', 'Johnathan', 'Higor', 'Talia', 'Riquelme', 'Henrique', 'David'];
 
         let storeData = [], bathroomData = [], lunchData = [], folgasData = [], holidays = [], lembretesData = [], afazeresData = [];
-        let currentUser = null, isAdmin = false, isAna = false;
+        let currentUser = null, isAdmin = false;
         let modalContext = { type: null, index: null }, folgaModalContext = { index: null }, lembreteEditIndex = null, afazerEditIndex = null;
 
         // ==================== CARREGAR / SALVAR ====================
@@ -558,7 +557,11 @@
                 const dados = await resposta.json();
                 storeData = dados.record.storeData || [];
                 bathroomData = dados.record.bathroomData || [];
-                lunchData = dados.record.lunchData || [];
+                // Se os dados antigos tiverem 'descanso', removemos; se não, usamos o que vier
+                lunchData = (dados.record.lunchData || []).map(row => {
+                    // Se vier com descanso, descartamos e mantemos apenas compras, loucas, salada
+                    return { date: row.date, compras: row.compras, loucas: row.loucas, salada: row.salada };
+                });
                 folgasData = dados.record.folgasData || [];
                 holidays = dados.record.holidays || [];
                 lembretesData = dados.record.lembretesData || [];
@@ -567,7 +570,6 @@
                 console.warn('Usando dados padrão', erro);
                 gerarDadosPadrao();
             }
-            // Se não houver folgas, gera automaticamente 4 ciclos a partir de 28/04/2026
             if (folgasData.length === 0) {
                 folgasData = gerarFolgas('2026-04-28', 4);
                 salvarDados();
@@ -600,19 +602,19 @@
                 const funcionario = folgaSequence[i % folgaSequence.length];
                 const data = current.toISOString().split('T')[0];
                 folgas.push({ funcionario, data, observacoes: '' });
-                current.setDate(current.getDate() + 7); // próxima terça
+                current.setDate(current.getDate() + 7);
             }
             return folgas;
         }
 
-        // ==================== GERAÇÃO DE ESCALAS (LOJA RESPEITA FOLGAS) ====================
+        // ==================== GERAÇÃO DE ESCALAS (TODAS RESPEITAM FOLGAS) ====================
         function gerarStoreSchedule(start, dias, folgas) {
             const folgaPorData = new Map(folgas.map(f => [f.data, f.funcionario]));
             const schedule = [];
             let cur = new Date(start + 'T12:00:00');
             const end = new Date(cur);
             end.setDate(end.getDate() + dias);
-            let idx = storeRotation.indexOf('Ana Paula'); // começa com Ana Paula? Ajuste: no original começava com Ana Paula em 18/02, mas aqui vamos usar a rotação normal.
+            let idx = 0;
 
             while (cur <= end) {
                 const ds = cur.toISOString().split('T')[0];
@@ -624,9 +626,7 @@
                         pessoa = storeRotation[idx];
                     }
 
-                    // Verifica se a pessoa escolhida está de folga
                     if (folgaPorData.get(ds) === pessoa) {
-                        // Procura o próximo da rotação que não esteja de folga (circular)
                         let found = false;
                         for (let i = 1; i < storeRotation.length; i++) {
                             const candidato = storeRotation[(idx + i) % storeRotation.length];
@@ -636,13 +636,8 @@
                                 break;
                             }
                         }
-                        if (!found) {
-                            // Se todos da rotação estiverem de folga (improvável), mantém o original
-                            pessoa = storeRotation[idx];
-                        }
-                        // Não avança idx porque a pessoa original não trabalhou
+                        if (!found) pessoa = storeRotation[idx];
                     } else {
-                        // Avança a rotação apenas se for dia de semana (não sábado) e a pessoa trabalhou
                         if (cur.getDay() !== 6) {
                             idx = (idx + 1) % storeRotation.length;
                         }
@@ -654,60 +649,120 @@
             return schedule;
         }
 
-        function gerarBathroomSchedule(start, weeks) {
+        function gerarBathroomSchedule(start, weeks, folgas) {
+            const folgaPorData = new Map(folgas.map(f => [f.data, f.funcionario]));
             let cur = new Date(start + 'T12:00:00'), end = new Date(cur);
             end.setDate(end.getDate() + weeks * 7);
             let idx = bathroomRotation.indexOf('Riquelme'), schedule = [];
             while (cur <= end) {
                 if (cur.getDay() === 3) {
                     let ds = cur.toISOString().split('T')[0];
-                    schedule.push({ date: ds, person: bathroomRotation[idx] });
-                    idx = (idx + 1) % bathroomRotation.length;
+                    let pessoa = bathroomRotation[idx];
+                    if (folgaPorData.get(ds) === pessoa) {
+                        let encontrado = false;
+                        for (let i = 1; i < bathroomRotation.length; i++) {
+                            let candidato = bathroomRotation[(idx + i) % bathroomRotation.length];
+                            if (folgaPorData.get(ds) !== candidato) {
+                                pessoa = candidato;
+                                encontrado = true;
+                                break;
+                            }
+                        }
+                        if (!encontrado) pessoa = bathroomRotation[idx];
+                    } else {
+                        idx = (idx + 1) % bathroomRotation.length;
+                    }
+                    schedule.push({ date: ds, person: pessoa });
                 }
                 cur.setDate(cur.getDate() + 1);
             }
             return schedule;
         }
 
-        function gerarLunchSchedule(start) {
+        function gerarLunchSchedule(start, folgas) {
+            const folgaPorData = new Map(folgas.map(f => [f.data, f.funcionario]));
             let cur = new Date(start + 'T12:00:00'), end = new Date(cur);
             end.setMonth(end.getMonth() + 6);
+            // Definir a rotação semanal: base de 3 funções
+            let base = ['Compras', 'Louças', 'Salada'];
+            let funcs = [...base];
+            // Ajustar o offset inicial baseado na data de referência (21/02/2026 era sábado)
             let ref = new Date('2026-02-21T12:00:00');
             let diff = Math.round((cur - ref) / (7 * 24 * 60 * 60 * 1000));
             if (diff < 0) diff = 0;
-            let base = ['Compras', 'Louças', 'Descanso', 'Salada'];
-            let funcs = [...base];
-            for (let i = 0; i < diff; i++) funcs = [funcs[3], funcs[0], funcs[1], funcs[2]];
+            for (let i = 0; i < diff; i++) {
+                // Roda a lista: [0,1,2] -> [2,0,1] -> ...
+                funcs = [funcs[2], funcs[0], funcs[1]];
+            }
+
             let schedule = [], tmp = new Date(cur);
+            let saturdayCount = 0; // conta sábados para a escadinha
+
             while (tmp <= end) {
                 let ds = tmp.toISOString().split('T')[0];
-                let row = {
-                    date: ds,
-                    compras: lunchPeople[funcs.indexOf('Compras')],
-                    loucas: lunchPeople[funcs.indexOf('Louças')],
-                    salada: lunchPeople[funcs.indexOf('Salada')],
-                    descanso: lunchPeople[funcs.indexOf('Descanso')]
-                };
-                if (isLastDayOfMonth(ds) || isLastSaturdayOfMonth(ds)) {
-                    if (row.compras === 'Ana') { row.compras = row.descanso; row.descanso = 'Fechamento caixa'; }
-                    else if (row.loucas === 'Ana') { row.loucas = row.descanso; row.descanso = 'Fechamento caixa'; }
-                    else if (row.salada === 'Ana') { row.salada = row.descanso; row.descanso = 'Fechamento caixa'; }
-                    else if (row.descanso === 'Ana') { row.descanso = 'Fechamento caixa'; }
+                let dayOfWeek = tmp.getDay();
+
+                // Função para evitar folga (substitui por outro disponível)
+                function evitarFolga(nome) {
+                    if (folgaPorData.get(ds) === nome) {
+                        for (let alt of lunchPeople) {
+                            if (alt !== nome && folgaPorData.get(ds) !== alt) {
+                                return alt;
+                            }
+                        }
+                        return nome; // fallback
+                    }
+                    return nome;
                 }
+
+                let compras, loucas, salada;
+
+                if (dayOfWeek === 6) { // Sábado: escadinha
+                    // A cada sábado, os 3 funcionários se alternam em ordem circular
+                    // Exemplo: sábado 0: Eddie compras, Talia louças, Riquelme salada
+                    //          sábado 1: Eddie salada, Talia compras, Riquelme louças
+                    //          sábado 2: Eddie louças, Talia salada, Riquelme compras
+                    const shift = saturdayCount % 3;
+                    const pessoas = ['Eddie', 'Talia', 'Riquelme'];
+                    // Atribuir funções de acordo com o shift
+                    // shift 0: compras=Eddie, louças=Talia, salada=Riquelme
+                    // shift 1: compras=Talia, louças=Riquelme, salada=Eddie
+                    // shift 2: compras=Riquelme, louças=Eddie, salada=Talia
+                    const atribuicoes = [
+                        { compras: 'Eddie', loucas: 'Talia', salada: 'Riquelme' },
+                        { compras: 'Talia', loucas: 'Riquelme', salada: 'Eddie' },
+                        { compras: 'Riquelme', loucas: 'Eddie', salada: 'Talia' }
+                    ];
+                    let atr = atribuicoes[shift];
+                    compras = evitarFolga(atr.compras);
+                    loucas = evitarFolga(atr.loucas);
+                    salada = evitarFolga(atr.salada);
+                    saturdayCount++;
+                } else {
+                    // Dias normais: usa a rotação semanal (funcs)
+                    // funcs[0] = Compras, funcs[1] = Louças, funcs[2] = Salada
+                    compras = evitarFolga(lunchPeople[funcs.indexOf('Compras')]);
+                    loucas = evitarFolga(lunchPeople[funcs.indexOf('Louças')]);
+                    salada = evitarFolga(lunchPeople[funcs.indexOf('Salada')]);
+                }
+
+                let row = { date: ds, compras, loucas, salada };
                 schedule.push(row);
+
+                // Avança uma semana
                 tmp.setDate(tmp.getDate() + 7);
-                funcs = [funcs[3], funcs[0], funcs[1], funcs[2]];
+                // Roda a lista de funções para a próxima semana (exceto se for sábado? Mas a rotação semanal é independente)
+                funcs = [funcs[2], funcs[0], funcs[1]];
             }
             return schedule;
         }
 
         function gerarDadosPadrao() {
-            // Gera folgas com 4 ciclos a partir de 28/04/2026
             folgasData = gerarFolgas('2026-04-28', 4);
-            // Gera loja já respeitando as folgas
             storeData = gerarStoreSchedule('2026-04-28', 90, folgasData);
-            bathroomData = gerarBathroomSchedule('2026-04-28', 26);
-            lunchData = gerarLunchSchedule('2026-04-25'); // sábado mais próximo
+            bathroomData = gerarBathroomSchedule('2026-04-28', 26, folgasData);
+            // Iniciar almoço a partir de um sábado (25/04/2026)
+            lunchData = gerarLunchSchedule('2026-04-25', folgasData);
             holidays = [
                 '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
                 '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
@@ -715,7 +770,7 @@
             ];
             lembretesData = [
                 { titulo: 'Compras da semana', classificacao: 'pedidos', criador: 'David', itens: ['Pano de chão', 'Sabão neutro', 'Luvas'] },
-                { titulo: 'Atenção com horário', classificacao: 'atencao', criador: 'Ana Paula', itens: ['Checar ponto', 'Avisar equipe'] }
+                { titulo: 'Atenção com horário', classificacao: 'atencao', criador: 'Talia', itens: ['Checar ponto', 'Avisar equipe'] }
             ];
             afazeresData = [
                 { titulo: 'Limpeza geral', tarefas: [{ texto: 'Varrer loja', feito: false }, { texto: 'Limpar vidros', feito: true }] }
@@ -725,17 +780,6 @@
         // Helpers
         function isSunday(d) { return new Date(d + 'T12:00:00').getDay() === 0; }
         function isHoliday(d) { return holidays.includes(d); }
-        function isLastDayOfMonth(d) {
-            let dt = new Date(d + 'T12:00:00');
-            return dt.getDate() === new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate();
-        }
-        function isLastSaturdayOfMonth(d) {
-            let dt = new Date(d + 'T12:00:00');
-            if (dt.getDay() !== 6) return false;
-            let n = new Date(dt);
-            n.setDate(dt.getDate() + 1);
-            return n.getMonth() !== dt.getMonth();
-        }
 
         // ==================== RENDERIZAÇÃO ====================
         function renderTables() { renderLoja(); renderBanheiro(); renderAlmoco(); renderFolgas(); renderHolidays(); }
@@ -769,7 +813,7 @@
             let tbody = document.querySelector('#almocoTable tbody'); tbody.innerHTML = '';
             lunchData.forEach((item, idx) => {
                 let tr = document.createElement('tr');
-                tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.compras}</td><td>${item.loucas}</td><td>${item.salada}</td><td>${item.descanso}</td>`;
+                tr.innerHTML = `<td>${formatDateWithWeekday(item.date)}</td><td>${item.compras}</td><td>${item.loucas}</td><td>${item.salada}</td>`;
                 if (isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="editRow('almoco',${idx})">✏️</button><button class="btn btn-danger" onclick="deleteRow('almoco',${idx})">🗑️</button></td>`;
                 tbody.appendChild(tr);
             });
@@ -781,10 +825,10 @@
                 let tr = document.createElement('tr');
                 let dataFormatada = item.data ? formatDateWithWeekday(item.data).split(' - ')[0] : '';
                 tr.innerHTML = `<td>${item.funcionario}</td><td>${dataFormatada}</td><td>${item.observacoes || ''}</td>`;
-                if (isAdmin || isAna) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="marcarConcluida(${idx})">✅</button><button class="btn" onclick="editFolga(${idx})">✏️</button><button class="btn btn-danger" onclick="deleteFolga(${idx})">🗑️</button></td>`;
+                if (isAdmin) tr.innerHTML += `<td class="action-buttons"><button class="btn" onclick="marcarConcluida(${idx})">✅</button><button class="btn" onclick="editFolga(${idx})">✏️</button><button class="btn btn-danger" onclick="deleteFolga(${idx})">🗑️</button></td>`;
                 tbody.appendChild(tr);
             });
-            document.getElementById('folgasActionsHeader').style.display = (isAdmin || isAna) ? 'table-cell' : 'none';
+            document.getElementById('folgasActionsHeader').style.display = isAdmin ? 'table-cell' : 'none';
         }
         function renderHolidays() {
             let cont = document.getElementById('holidayListContainer'); cont.innerHTML = '';
@@ -850,43 +894,39 @@
         window.loginEmployee = function() {
             let name = document.getElementById('employeeSelect').value;
             if (!name) { alert('Selecione um nome'); return; }
-            currentUser = { nome: name, tipo: 'funcionario' }; isAdmin = false; isAna = false;
+            currentUser = { nome: name, tipo: 'funcionario' };
+            isAdmin = false;
             enterApp();
         };
         window.loginAdmin = function() {
             let name = document.getElementById('adminName').value, pwd = document.getElementById('adminPassword').value;
             if (name === 'David' && pwd === 'C7123') {
-                currentUser = { nome: 'David', tipo: 'admin' }; isAdmin = true; isAna = false;
+                currentUser = { nome: 'David', tipo: 'admin' };
+                isAdmin = true;
                 enterApp();
             } else alert('Credenciais inválidas');
-        };
-        window.loginAna = function() {
-            let pwd = document.getElementById('anaPassword').value;
-            if (pwd === '0411') {
-                currentUser = { nome: 'Ana Paula', tipo: 'ana' }; isAdmin = false; isAna = true;
-                enterApp();
-            } else alert('Senha incorreta');
         };
         function enterApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainPanel').style.display = 'block';
-            document.getElementById('userDisplay').innerText = `Olá, ${currentUser.nome} (${currentUser.tipo === 'admin' ? 'Admin' : currentUser.tipo === 'ana' ? 'Folgas' : 'Funcionário'})`;
+            document.getElementById('userDisplay').innerText = `Olá, ${currentUser.nome} (${currentUser.tipo === 'admin' ? 'Admin' : 'Funcionário'})`;
             document.querySelectorAll('.admin-controls').forEach(el => {
-                if (el.id === 'folgasAdminControls') el.style.display = (isAdmin || isAna) ? 'flex' : 'none';
-                else if (el.id === 'afazeresAdminControls') el.style.display = isAdmin ? 'flex' : 'none';
-                else el.style.display = isAdmin ? 'flex' : 'none';
+                if (el.id === 'folgasAdminControls' || el.id === 'afazeresAdminControls') {
+                    el.style.display = isAdmin ? 'flex' : 'none';
+                } else {
+                    el.style.display = isAdmin ? 'flex' : 'none';
+                }
             });
             document.getElementById('holidayTab').style.display = isAdmin ? 'block' : 'none';
             if (!isAdmin) document.getElementById('feriadosPanel').classList.remove('active');
             renderTables(); renderLembretes(); renderAfazeres();
         }
         window.logout = function() {
-            currentUser = null; isAdmin = false; isAna = false;
+            currentUser = null; isAdmin = false;
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainPanel').style.display = 'none';
             document.getElementById('employeeSelect').value = '';
             document.getElementById('adminPassword').value = '';
-            document.getElementById('anaPassword').value = '';
         };
         window.showTab = function(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -905,7 +945,6 @@
                     <select id="modalCompras">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
                     <select id="modalLoucas">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
                     <select id="modalSalada">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
-                    <select id="modalDescanso">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>
                 `;
             } else {
                 fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option>${f}</option>`).join('')}</select>`;
@@ -926,7 +965,6 @@
                     <select id="modalCompras">${funcionarios.map(f => `<option ${f === item.compras ? 'selected' : ''}>${f}</option>`).join('')}</select>
                     <select id="modalLoucas">${funcionarios.map(f => `<option ${f === item.loucas ? 'selected' : ''}>${f}</option>`).join('')}</select>
                     <select id="modalSalada">${funcionarios.map(f => `<option ${f === item.salada ? 'selected' : ''}>${f}</option>`).join('')}</select>
-                    <select id="modalDescanso">${funcionarios.map(f => `<option ${f === item.descanso ? 'selected' : ''}>${f}</option>`).join('')}</select>
                 `;
             } else {
                 fields.innerHTML = `<select id="modalPerson">${funcionarios.map(f => `<option ${f === item.person ? 'selected' : ''}>${f}</option>`).join('')}</select>`;
@@ -950,8 +988,7 @@
                 let compras = document.getElementById('modalCompras').value;
                 let loucas = document.getElementById('modalLoucas').value;
                 let salada = document.getElementById('modalSalada').value;
-                let descanso = document.getElementById('modalDescanso').value;
-                let newRow = { date, compras, loucas, salada, descanso };
+                let newRow = { date, compras, loucas, salada };
                 if (index !== null) lunchData[index] = newRow;
                 else lunchData.push(newRow);
             } else {
@@ -974,7 +1011,7 @@
         // ==================== CRUD FOLGAS ====================
         window.openAddFolgaModal = function() {
             document.getElementById('folgaModalTitle').innerText = 'Adicionar folga';
-            document.getElementById('folgaFuncionario').value = 'Ana Paula';
+            document.getElementById('folgaFuncionario').value = 'Talia';
             document.getElementById('folgaData').value = '';
             document.getElementById('folgaObservacoes').value = '';
             folgaModalContext.index = null;
@@ -1112,7 +1149,7 @@
         window.regenerateBathroom = function() {
             if (!confirm('Recriar escala do banheiro?')) return;
             let hoje = new Date().toISOString().split('T')[0];
-            bathroomData = gerarBathroomSchedule(hoje, 26);
+            bathroomData = gerarBathroomSchedule(hoje, 26, folgasData);
             salvarDados(); renderTables();
         };
         window.regenerateLunch = function() {
@@ -1123,20 +1160,20 @@
             let primeiroSabado = new Date(hoje);
             primeiroSabado.setDate(hoje.getDate() + diff);
             let start = primeiroSabado.toISOString().split('T')[0];
-            lunchData = gerarLunchSchedule(start);
+            lunchData = gerarLunchSchedule(start, folgasData);
             salvarDados(); renderTables();
         };
         window.updateToCurrentDate = function() {
             if (!confirm('Atualizar todas as escalas para a data de hoje?')) return;
             let hoje = new Date().toISOString().split('T')[0];
             storeData = gerarStoreSchedule(hoje, 90, folgasData);
-            bathroomData = gerarBathroomSchedule(hoje, 26);
+            bathroomData = gerarBathroomSchedule(hoje, 26, folgasData);
             let diaSemana = new Date().getDay();
             let diff = (6 - diaSemana + 7) % 7 || 7;
             let primeiroSabado = new Date();
             primeiroSabado.setDate(new Date().getDate() + diff);
             let start = primeiroSabado.toISOString().split('T')[0];
-            lunchData = gerarLunchSchedule(start);
+            lunchData = gerarLunchSchedule(start, folgasData);
             salvarDados(); renderTables();
         };
 
