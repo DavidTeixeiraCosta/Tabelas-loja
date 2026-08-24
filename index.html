@@ -540,7 +540,7 @@
 
         // ==================== DADOS ====================
         const funcionarios = ['Talia', 'Eddie', 'Henrique', 'Riquelme', 'Higor', 'Zeneilton', 'Johnathan', 'David'];
-        const storeRotation = ['Eddie', 'Talia'];
+        const storeRotation = ['Eddie', 'Talia', 'Riquelme']; // agora com 3
         const bathroomRotation = ['Eddie', 'Talia', 'Riquelme'];
         const lunchPeople = ['Talia', 'Eddie', 'Riquelme']; // apenas 3
         const folgaSequence = ['Eddie', 'Johnathan', 'Higor', 'Talia', 'Riquelme', 'Henrique', 'David'];
@@ -559,7 +559,6 @@
                 bathroomData = dados.record.bathroomData || [];
                 // Se os dados antigos tiverem 'descanso', removemos; se não, usamos o que vier
                 lunchData = (dados.record.lunchData || []).map(row => {
-                    // Se vier com descanso, descartamos e mantemos apenas compras, loucas, salada
                     return { date: row.date, compras: row.compras, loucas: row.loucas, salada: row.salada };
                 });
                 folgasData = dados.record.folgasData || [];
@@ -614,18 +613,15 @@
             let cur = new Date(start + 'T12:00:00');
             const end = new Date(cur);
             end.setDate(end.getDate() + dias);
-            let idx = 0;
+            let idx = 0; // começa com Eddie
 
             while (cur <= end) {
                 const ds = cur.toISOString().split('T')[0];
                 if (!isSunday(ds) && !isHoliday(ds)) {
-                    let pessoa;
-                    if (cur.getDay() === 6) {
-                        pessoa = 'Riquelme';
-                    } else {
-                        pessoa = storeRotation[idx];
-                    }
+                    // Agora sem exceção de sábado: usa a rotação normal
+                    let pessoa = storeRotation[idx];
 
+                    // Verifica se a pessoa está de folga
                     if (folgaPorData.get(ds) === pessoa) {
                         let found = false;
                         for (let i = 1; i < storeRotation.length; i++) {
@@ -638,9 +634,8 @@
                         }
                         if (!found) pessoa = storeRotation[idx];
                     } else {
-                        if (cur.getDay() !== 6) {
-                            idx = (idx + 1) % storeRotation.length;
-                        }
+                        // Avança a rotação para o próximo dia útil (todos os dias que não domingo/feriado)
+                        idx = (idx + 1) % storeRotation.length;
                     }
                     schedule.push({ date: ds, person: pessoa });
                 }
@@ -683,26 +678,22 @@
             const folgaPorData = new Map(folgas.map(f => [f.data, f.funcionario]));
             let cur = new Date(start + 'T12:00:00'), end = new Date(cur);
             end.setMonth(end.getMonth() + 6);
-            // Definir a rotação semanal: base de 3 funções
             let base = ['Compras', 'Louças', 'Salada'];
             let funcs = [...base];
-            // Ajustar o offset inicial baseado na data de referência (21/02/2026 era sábado)
             let ref = new Date('2026-02-21T12:00:00');
             let diff = Math.round((cur - ref) / (7 * 24 * 60 * 60 * 1000));
             if (diff < 0) diff = 0;
             for (let i = 0; i < diff; i++) {
-                // Roda a lista: [0,1,2] -> [2,0,1] -> ...
                 funcs = [funcs[2], funcs[0], funcs[1]];
             }
 
             let schedule = [], tmp = new Date(cur);
-            let saturdayCount = 0; // conta sábados para a escadinha
+            let saturdayCount = 0;
 
             while (tmp <= end) {
                 let ds = tmp.toISOString().split('T')[0];
                 let dayOfWeek = tmp.getDay();
 
-                // Função para evitar folga (substitui por outro disponível)
                 function evitarFolga(nome) {
                     if (folgaPorData.get(ds) === nome) {
                         for (let alt of lunchPeople) {
@@ -710,24 +701,15 @@
                                 return alt;
                             }
                         }
-                        return nome; // fallback
+                        return nome;
                     }
                     return nome;
                 }
 
                 let compras, loucas, salada;
 
-                if (dayOfWeek === 6) { // Sábado: escadinha
-                    // A cada sábado, os 3 funcionários se alternam em ordem circular
-                    // Exemplo: sábado 0: Eddie compras, Talia louças, Riquelme salada
-                    //          sábado 1: Eddie salada, Talia compras, Riquelme louças
-                    //          sábado 2: Eddie louças, Talia salada, Riquelme compras
+                if (dayOfWeek === 6) {
                     const shift = saturdayCount % 3;
-                    const pessoas = ['Eddie', 'Talia', 'Riquelme'];
-                    // Atribuir funções de acordo com o shift
-                    // shift 0: compras=Eddie, louças=Talia, salada=Riquelme
-                    // shift 1: compras=Talia, louças=Riquelme, salada=Eddie
-                    // shift 2: compras=Riquelme, louças=Eddie, salada=Talia
                     const atribuicoes = [
                         { compras: 'Eddie', loucas: 'Talia', salada: 'Riquelme' },
                         { compras: 'Talia', loucas: 'Riquelme', salada: 'Eddie' },
@@ -739,8 +721,6 @@
                     salada = evitarFolga(atr.salada);
                     saturdayCount++;
                 } else {
-                    // Dias normais: usa a rotação semanal (funcs)
-                    // funcs[0] = Compras, funcs[1] = Louças, funcs[2] = Salada
                     compras = evitarFolga(lunchPeople[funcs.indexOf('Compras')]);
                     loucas = evitarFolga(lunchPeople[funcs.indexOf('Louças')]);
                     salada = evitarFolga(lunchPeople[funcs.indexOf('Salada')]);
@@ -749,9 +729,7 @@
                 let row = { date: ds, compras, loucas, salada };
                 schedule.push(row);
 
-                // Avança uma semana
                 tmp.setDate(tmp.getDate() + 7);
-                // Roda a lista de funções para a próxima semana (exceto se for sábado? Mas a rotação semanal é independente)
                 funcs = [funcs[2], funcs[0], funcs[1]];
             }
             return schedule;
@@ -761,7 +739,6 @@
             folgasData = gerarFolgas('2026-04-28', 4);
             storeData = gerarStoreSchedule('2026-04-28', 90, folgasData);
             bathroomData = gerarBathroomSchedule('2026-04-28', 26, folgasData);
-            // Iniciar almoço a partir de um sábado (25/04/2026)
             lunchData = gerarLunchSchedule('2026-04-25', folgasData);
             holidays = [
                 '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
